@@ -18,8 +18,11 @@ print("Connected to the database")
 with open("SammamishProfile.txt", "r") as file:
     csv_reader = csv.reader(file, delimiter="\t")
 
+    # Skip the header row
+    next(csv_reader, None)  
+
     for row in csv_reader:
-        if not row:  # Skip empty rows
+        if not row or row[0].strip().lower() == "date":  # Skip empty rows or headers
             continue
 
         # Convert date format
@@ -42,8 +45,12 @@ with open("SammamishProfile.txt", "r") as file:
         # Insert into Supabase only if temperature is valid
         if temperature_c is not None:
             cursor.execute(
-                "INSERT INTO lake_data (date, depth_m, temperature_c) VALUES (%s, %s, %s) "
-                "ON CONFLICT (date, depth_m) DO NOTHING",
+                """
+                INSERT INTO lake_data (date, depth_m, temperature_c) 
+                VALUES (%s, %s, %s) 
+                ON CONFLICT (date, depth_m) DO UPDATE 
+                SET temperature_c = EXCLUDED.temperature_c
+                """,
                 (date_time_obj, depth_m, temperature_c)
             )
 
