@@ -20,8 +20,8 @@ with open("SammamishProfile.txt", "r") as file:
         depth = float(row[1])
         temperature = float(row[2])
 
-        cursor.execute("INSERT INTO lake_data (date, depth_m, temperature_c) VALUES (%s, %s, %s) ON CONFLICT (date) DO NOTHING",
-                       (date_time_obj, depth, temperature))
+        cursor.execute("INSERT INTO lake_data (date, depth_m, temperature_c) VALUES (%s, %s, %s) ON CONFLICT (date, depth_m) DO NOTHING",
+                       (date_time_obj, depth_m, temperature_c))
 
 conn.commit()
 cursor.close()
