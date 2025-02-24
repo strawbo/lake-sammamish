@@ -16,7 +16,7 @@ with open("SammamishProfile.txt", "r") as file:
     next(csv_reader)  # Skip header
 
     for row in csv_reader:
-        date_time_obj = datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
+        date_time_obj = datetime.strptime(row[0], "%m/%d/%Y %I:%M:%S %p")
         depth = float(row[1])
         temperature = float(row[2])
 
