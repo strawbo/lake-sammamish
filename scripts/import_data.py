@@ -15,9 +15,11 @@ with open("SammamishProfile.txt", "r") as file:
     csv_reader = csv.reader(file, delimiter="\t")
     next(csv_reader)  # Skip header
 
-    for row in csv_reader:
-        date_time_obj = datetime.strptime(row[0], "%m/%d/%Y %I:%M:%S %p")
-	depth_m = float(row[1]) if row[1] else None  # Convert depth or set to None if empty
+for row in csv_reader:
+    date_time_obj = datetime.strptime(row[0], "%m/%d/%Y %I:%M:%S %p")  # Fix date format
+
+    depth_m = float(row[1]) if row[1] else None  # Convert depth or set to None if empty
+
     # Ensure the temperature value is valid before conversion
     try:
         temperature_c = float(row[2]) if row[2] else None  # Convert or set to None if empty
@@ -32,6 +34,9 @@ with open("SammamishProfile.txt", "r") as file:
             "ON CONFLICT (date, depth_m) DO NOTHING",
             (date_time_obj, depth_m, temperature_c)
         )
+
+
+
 conn.commit()
 cursor.close()
 conn.close()
