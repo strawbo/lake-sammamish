@@ -1,0 +1,33 @@
+name: Fetch and Import Lake Data
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"  # Runs every 4 hours
+  workflow_dispatch:  # Allow manual execution
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests psycopg2
+
+      - name: Run Data Fetch Script
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/download_data.py
+
+      - name: Run Import Script
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/import_data.py
+
