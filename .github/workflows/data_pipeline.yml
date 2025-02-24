@@ -19,7 +19,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Dependencies
-        run: pip install requests psycopg2 python-dotenv
+        run: pip install requests psycopg2 python-dotenv beautifulsoup4
 
       - name: Run Data Fetch Script
         env:
