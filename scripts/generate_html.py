@@ -51,6 +51,7 @@ conn.close()
 
 # Convert dataframes to JSON format for JavaScript
 current_json = df_current.to_json(orient="records", date_format="iso")
+df_past["pYear"] = df_past["pYear"].astype(int)  # Ensure years are integers
 past_json = df_past.to_json(orient="records", date_format="iso")
 
 # Extract unique years for labeling
@@ -62,29 +63,33 @@ datasets_js = """
 const datasets = [
     {
         label: "Current Year",
-        data: dataCurrent.map(row => ({ x: row.date, y: row.max_temperature_f })),
+        data: dataCurrent.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         fill: false,
-        borderWidth: 5,
+        borderWidth: 5, // Make current year thicker
         tension: 0.1
-    },"""
+    }
+];
 
-# Define colors for previous years
-colors = ["rgba(192, 75, 75, 1)", "rgba(192, 192, 75, 1)", "rgba(75, 75, 192, 1)", "rgba(192, 75, 192, 1)", "rgba(75, 192, 75, 1)"]
+const colors = ["rgba(192, 75, 75, 1)", "rgba(192, 192, 75, 1)", "rgba(75, 75, 192, 1)", "rgba(192, 75, 192, 1)", "rgba(75, 192, 75, 1)"];
+let colorIndex = 0;
 
-for i, year in enumerate(years):
-    datasets_js += f"""
-    {{
-        label: "Year {year}",
-        data: dataPast.filter(row => row.pYear === {year}).map(row => ({{
-            x: row.date,
-            y: row.max_temperature_f
-        }})),
-        borderColor: "{colors[i % len(colors)]}",
-        borderDash: [5, 5],
+const years = Array.from(new Set(dataPast.map(row => row.pYear)));  // Ensure unique years
+
+years.forEach(year => {
+    const filteredData = dataPast.filter(item => item.pYear === year);
+    datasets.push({
+        label: `Year ${year}`,  // Fixing label formatting
+        data: filteredData.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
+        borderColor: colors[colorIndex % colors.length],
+        borderWidth: 2,
+        borderDash: [5, 5], // Dashed lines for previous years
+        fill: false,
         tension: 0.1
-    }},"""
+    });
+    colorIndex++;
+});"""
 
 datasets_js = datasets_js.rstrip(",") + "\n];"  # Remove last comma
 
