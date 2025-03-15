@@ -145,7 +145,23 @@ html_content = f"""<!DOCTYPE html>
 </html>"""
 
 # Save the HTML file
+import os
+
 output_path = "docs/index.html"
+
+# Ensure the directory exists
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+# Write the file
+with open(output_path, "w", encoding="utf-8") as file:
+    file.write(html_content)
+
+# Debugging: List files in "docs/"
+print("Listing contents of 'docs/' directory:")
+for filename in os.listdir("docs"):
+    print(filename)
+
+
 with open(output_path, "w", encoding="utf-8") as file:
     file.write(html_content)
 
