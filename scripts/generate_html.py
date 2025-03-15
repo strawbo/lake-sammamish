@@ -54,8 +54,8 @@ current_json = df_current.to_json(orient="records", date_format="iso")
 past_json = df_past.to_json(orient="records", date_format="iso")
 
 # Extract unique years for labeling
-print(df_past.head())  # Debugging step: Check what columns exist
-years = df_past["pYear"].unique()
+# print(df_past.head())  # Debugging step: Check what columns exist
+years = df_past["pyear"].unique()  # Use lowercase "pyear" from print output
 
 # Generate the JavaScript dataset definitions
 datasets_js = """
