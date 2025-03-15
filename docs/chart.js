@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("lakeChart").getContext("2d");
     const datasets = [
         {
             label: "Current Year",
