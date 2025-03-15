@@ -1,5 +1,8 @@
 name: Fetch and Import Lake Data
 
+permissions:
+  contents: write
+
 on:
   schedule:
     - cron: "0 */4 * * *"  # Runs every 4 hours
@@ -35,3 +38,14 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/generate_html.py
+
+      - name: Push updated index.html
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
+          git add docs/index.html
+          git commit -m "Auto-update index.html" || echo "No changes to commit"
+          git push origin main
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
