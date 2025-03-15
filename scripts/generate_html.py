@@ -92,8 +92,6 @@ years.forEach(year => {
     colorIndex++;
 });"""
 
-datasets_js = datasets_js.rstrip(",") + "\n];"  # Remove last comma
-
 # Generate HTML content
 html_content = f"""<!DOCTYPE html>
 <html>
