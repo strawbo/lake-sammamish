@@ -51,7 +51,8 @@ conn.close()
 
 # Convert dataframes to JSON format for JavaScript
 current_json = df_current.to_json(orient="records", date_format="iso")
-df_past["pYear"] = df_past["pYear"].astype(int)  # Ensure years are integers
+df_past.rename(columns={"pyear": "pYear"}, inplace=True)  # Ensure correct column name
+df_past["pYear"] = df_past["pYear"].astype(int)  # Convert float year to integer
 past_json = df_past.to_json(orient="records", date_format="iso")
 
 # Extract unique years for labeling
@@ -75,7 +76,7 @@ const datasets = [
 const colors = ["rgba(192, 75, 75, 1)", "rgba(192, 192, 75, 1)", "rgba(75, 75, 192, 1)", "rgba(192, 75, 192, 1)", "rgba(75, 192, 75, 1)"];
 let colorIndex = 0;
 
-const years = Array.from(new Set(dataPast.map(row => row.pYear)));  // Ensure unique years
+const years = Array.from(new Set(dataPast.map(row => Math.round(row.pYear))));  // Remove decimal
 
 years.forEach(year => {
     const filteredData = dataPast.filter(item => item.pYear === year);
