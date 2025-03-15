@@ -145,7 +145,8 @@ html_content = f"""<!DOCTYPE html>
 </html>"""
 
 # Save the HTML file
-with open("docs/index.html", "w", encoding="utf-8") as file:
+output_path = "docs/index.html"
+with open(output_path", "w", encoding="utf-8") as file:
     file.write(html_content)
 
 
