@@ -55,97 +55,68 @@ current_json = df_current.to_json(orient="records", date_format="iso")
 past_json = df_past.to_json(orient="records", date_format="iso")
 
 # Generate HTML file for GitHub Pages
-html_content = f"""<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Lake Sammamish Water Temperature</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-</head>
-<body>
-    <h1>Lake Sammamish Water Temperature</h1>
-    <canvas id="lakeChart" width="400" height="200"></canvas>
-    <script>
-        const ctx = document.getElementById("lakeChart").getContext("2d");
+# Ensure year is correctly passed when generating JavaScript
+html_content += """
+<script>
+    const ctx = document.getElementById("lakeChart").getContext("2d");
+    const data6Weeks = """ + df_current.to_json(orient="records", date_format="iso") + """;
+    const data5Years = """ + df_past.to_json(orient="records", date_format="iso") + """;
 
-        // Current Year Data
-        const dataCurrent = {current_json};
+    const datasets = [
+        {
+            label: "Current Year",
+            data: data6Weeks.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            fill: false,
+            borderWidth: 5,  // Thicker line for the current year
+            tension: 0.1
+        }
+    ];
 
-        // Past 5 Years Data
-        const dataPast = {past_json};
+    const colors = ["rgba(192, 75, 75, 1)", "rgba(192, 192, 75, 1)", "rgba(75, 75, 192, 1)", "rgba(192, 75, 192, 1)", "rgba(75, 192, 75, 1)"];
+    let colorIndex = 0;
 
-        const datasets = [
-            {{
-                label: "Current Year",
-                data: dataCurrent.map(row => ({{
-                    x: new Date(row.date),
-                    y: row.max_temperature_f
-                }})),
-                borderColor: "rgba(75, 192, 192, 1)",
-                backgroundColor: "rgba(75, 192, 192, 0.2)",
-                fill: false,
-                borderWidth: 5,
-                tension: 0.1
-            }}
-        ];
+    // Ensure that the variable 'year' is correctly referenced
+    const years = [...new Set(data5Years.map(row => row.pYear))];
 
-        const colors = ["rgba(192, 75, 75, 1)", "rgba(192, 192, 75, 1)", "rgba(75, 75, 192, 1)", "rgba(192, 75, 192, 1)", "rgba(75, 192, 75, 1)"];
-        let colorIndex = 0;
+    years.forEach(pYear => {
+        const filteredData = data5Years.filter(item => item.pYear === pYear);
+        datasets.push({
+            label: `Year ${pYear}`,  // Now correctly references pYear
+            data: filteredData.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
+            borderColor: colors[colorIndex % colors.length],
+            borderWidth: 2,
+            borderDash: [5, 5],  // Dashed lines for previous years
+            tension: 0.1
+        });
+        colorIndex++;
+    });
 
-        const years = [...new Set(dataPast.map(row => row.pYear))];
-
-        years.forEach(year => {{
-            const filteredData = dataPast.filter(item => item.pYear === year);
-            datasets.push({{
-                label: `Year ${year}`,
-                data: filteredData.map(row => ({{
-                    x: new Date(row.date.replace(/^\\d{{4}}-/, new Date().getFullYear() + '-')), 
-                    y: row.max_temperature_f
-                }})),
-                borderColor: colors[colorIndex % colors.length],
-                borderWidth: 2,
-                borderDash: [5, 5],
-                fill: false,
-                tension: 0.1
-            }});
-            colorIndex++;
-        }});
-
-        new Chart(ctx, {{
-            type: "line",
-            data: {{ datasets }},
-            options: {{
-                scales: {{
-                    x: {{
-                        type: "time",
-                        time: {{
-                            unit: "day",
-                            tooltipFormat: 'MMM d',
-                            displayFormats: {{
-                                day: 'MMM d'
-                            }}
-                        }},
-                        title: {{
-                            display: true,
-                            text: 'Date'
-                        }}
-                    }},
-                    y: {{
-                        beginAtZero: false,
-                        suggestedMin: 50,
-                        suggestedMax: 90,
-                        title: {{
-                            display: true,
-                            text: 'Temperature (°F)'
-                        }}
-                    }}
-                }}
-            }}
-        }});
-    </script>
-</body>
-</html>
+    const lakeChart = new Chart(ctx, {
+        type: "line",
+        data: { datasets },
+        options: {
+            scales: {
+                x: {
+                    type: "time",
+                    time: {
+                        unit: "day",
+                        tooltipFormat: "MMM dd",
+                        displayFormats: { day: "MMM dd" }
+                    },
+                    title: { display: true, text: "Date" }
+                },
+                y: {
+                    beginAtZero: false,
+                    min: 50, 
+                    max: 90,
+                    title: { display: true, text: "Temperature (°F)" }
+                }
+            }
+        }
+    });
+</script>
 """
 
 # Save to GitHub Pages directory
