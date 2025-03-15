@@ -28,9 +28,12 @@ jobs:
         run: python scripts/generate_html.py
 
       - name: Commit and Push index.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add docs/index.html
           git commit -m "Auto-update index.html" || echo "No changes to commit"
-          git push
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/strawbo/lake-sammamish.git main
+
