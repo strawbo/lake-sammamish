@@ -110,26 +110,30 @@ html_content = f"""<!DOCTYPE html>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
+        body {{
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }}
         @media screen and (max-width: 768px) {{
             h1 {{
                 font-size: 1.5rem; /* Reduce title size */
-                text-align: center;
             }}
-            div {{
-                width: 100%;
+            div.chart-container {{
+                width: 95%;
                 max-width: 1000px;
                 margin: auto;
+                position: relative;
             }}
             canvas {{
                 width: 100% !important;
-                height: auto !important;
+                height: 400px !important; /* Ensure it doesn't collapse */
             }}
         }}
     </style>
 </head>
 <body>
     <h1>Lake Sammamish Water Temperature</h1>
-    <div>
+    <div class="chart-container">
         <canvas id="lakeChart"></canvas>
     </div>
     <script>
@@ -148,6 +152,7 @@ html_content = f"""<!DOCTYPE html>
             options: {{
                 responsive: true,  // Make it scale to different screens
                 maintainAspectRatio: false,  // Allow dynamic resizing
+                aspectRatio: 2,  // Ensure it doesn't get too tall
                 scales: {{
                     x: {{
                         type: "time",
