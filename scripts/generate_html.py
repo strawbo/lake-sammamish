@@ -125,13 +125,13 @@ html_content = f"""<!DOCTYPE html>
                 height: auto !important;
             }}
         }}
-    </style>  
+    </style>
 </head>
 <body>
     <h1>Lake Sammamish Water Temperature</h1>
-       <div style="width: 100%; max-width: 1000px; margin: auto;">
-           <canvas id="lakeChart"></canvas>
-       </div>
+    <div>
+        <canvas id="lakeChart"></canvas>
+    </div>
     <script>
         const dataCurrent = {current_json};
         const dataPast = {past_json};
