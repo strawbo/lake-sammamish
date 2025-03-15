@@ -74,10 +74,3 @@ with open(output_path, "w", encoding="utf-8") as file:
     file.write(html_output)
 
 print(f"✅ Successfully wrote {output_path}")
-
-import shutil
-
-# Copy chart.js to docs directory
-shutil.copy("templates/chart.js", "docs/chart.js")
-print("✅ Successfully copied chart.js to docs/")
-
