@@ -145,8 +145,8 @@ html_content = f"""<!DOCTYPE html>
 </html>"""
 
 # Save the HTML file
-output_path = "../lake-sammamish/index.html"
-with open(output_path, "w") as file:
+with open("docs/index.html", "w", encoding="utf-8") as file:
     file.write(html_content)
+
 
 print(f"HTML file successfully created at {output_path}")
