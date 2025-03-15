@@ -9,20 +9,26 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            margin: 0;
+            padding: 0;
         }
+       .chart-container {
+        width: 100%;
+        max-width: 1000px; /* Keep it reasonable on large screens */
+        height: 400px; /* Ensure it has enough space */
+        margin: auto;
+        padding: 10px;
+       }
         @media screen and (max-width: 768px) {
             h1 {
-                font-size: 1.5rem; /* Reduce title size */
+                font-size: 1.2rem; /* Reduce title size */
             }
-            div.chart-container {
-                width: 95%;
-                max-width: 1000px;
-                margin: auto;
-                position: relative;
+            .chart-container {
+                height: 500px;
             }
             canvas {
                 width: 100% !important;
-                height: 400px !important; /* Ensure it doesn't collapse */
+                height: 100% !important; /* Ensure it doesn't collapse */
             }
         }
     </style>
@@ -82,7 +88,6 @@ years.forEach(year => {
             options: {
                 responsive: true,  // Make it scale to different screens
                 maintainAspectRatio: false,  // Allow dynamic resizing
-                aspectRatio: 2,  // Ensure it doesn't get too tall
                 scales: {
                     x: {
                         type: "time",
