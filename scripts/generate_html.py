@@ -29,13 +29,16 @@ ORDER BY date;
 
 # Query for the same date range in the past 5 years
 query_past = f"""
-SELECT DATE(date) as date, YEAR(date) as pYear, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
+SELECT DATE(date) as date, EXTRACT(YEAR FROM date) as pYear, 
+       ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
 FROM lake_data
 WHERE 
-    YEAR(date) BETWEEN YEAR(CURDATE()) - 5 AND YEAR(CURDATE()) - 1
-    AND DATE_FORMAT(date, '%m-%d') BETWEEN DATE_FORMAT('2025-02-22', '%m-%d') AND DATE_FORMAT('2025-04-05', '%m-%d')
-AND depth_m < 1.5
-GROUP BY DATE(date), YEAR(date)
+    EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5 
+                                AND EXTRACT(YEAR FROM CURRENT_DATE) - 1
+    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR('2025-02-22'::DATE, 'MM-DD') 
+                                   AND TO_CHAR('2025-04-05'::DATE, 'MM-DD')
+    AND depth_m < 1.5
+GROUP BY DATE(date), EXTRACT(YEAR FROM date)
 ORDER BY date;
 """
 
