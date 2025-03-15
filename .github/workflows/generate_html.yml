@@ -1,5 +1,8 @@
 name: Generate HTML Debugging
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:  # Allows manual execution
 
