@@ -1,0 +1,31 @@
+/* style.css - Controls layout and appearance of the chart */
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.chart-container {
+    width: 100vw; /* Full viewport width */
+    height: 80vh; /* 80% of the viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 1.2rem; /* Reduce title size for mobile */
+    }
+    .chart-container {
+        height: 60vh; /* Slightly smaller height for mobile */
+    }
+}
