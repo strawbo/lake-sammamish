@@ -161,9 +161,15 @@ print("Listing contents of 'docs/' directory:")
 for filename in os.listdir("docs"):
     print(filename)
 
+output_path = "docs/index.html"
 
-with open(output_path, "w", encoding="utf-8") as file:
-    file.write(html_content)
+try:
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html_content)
+    print(f"✅ Successfully wrote {output_path}")
+except Exception as e:
+    print(f"❌ Failed to write {output_path}: {e}")
+
 
 
 print(f"HTML file successfully created at {output_path}")
