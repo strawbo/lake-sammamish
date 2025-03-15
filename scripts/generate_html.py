@@ -19,9 +19,9 @@ end_date = today + timedelta(weeks=3)
 
 # Query for the last 6 weeks of data (current year)
 query_current = f"""
-SELECT DATE(date) as date, ROUND(MAX(temperature_c * 9/5 + 32), 1) as max_temperature_f
+SELECT DATE(date) as date, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
 FROM lake_data
-WHERE date BETWEEN '{start_date.strftime('%Y-%m-%d')}' AND '{end_date.strftime('%Y-%m-%d')}'
+WHERE date BETWEEN '2025-02-22' AND '2025-04-05'
 AND depth_m < 1.5
 GROUP BY DATE(date)
 ORDER BY date;
@@ -29,16 +29,14 @@ ORDER BY date;
 
 # Query for the same date range in the past 5 years
 query_past = f"""
-SELECT DATE(date) as date, EXTRACT(YEAR FROM date) as pYear, 
-       ROUND(MAX(temperature_c * 9/5 + 32), 1) as max_temperature_f
+SELECT DATE(date) as date, YEAR(date) as pYear, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
 FROM lake_data
 WHERE 
-    EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5 AND EXTRACT(YEAR FROM CURRENT_DATE) - 1
-    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR('{start_date.strftime('%Y-%m-%d')}'::DATE, 'MM-DD') 
-                                  AND TO_CHAR('{end_date.strftime('%Y-%m-%d')}'::DATE, 'MM-DD')
-    AND depth_m < 1.5
-GROUP BY DATE(date), pYear
-ORDER BY date, pYear;
+    YEAR(date) BETWEEN YEAR(CURDATE()) - 5 AND YEAR(CURDATE()) - 1
+    AND DATE_FORMAT(date, '%m-%d') BETWEEN DATE_FORMAT('2025-02-22', '%m-%d') AND DATE_FORMAT('2025-04-05', '%m-%d')
+AND depth_m < 1.5
+GROUP BY DATE(date), YEAR(date)
+ORDER BY date;
 """
 
 # Execute queries
