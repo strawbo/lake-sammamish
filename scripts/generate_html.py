@@ -86,9 +86,13 @@ const years = Array.from(new Set(dataPast.map(row => Math.round(row.pYear))));  
 years.forEach(year => {
     const filteredData = dataPast.filter(item => item.pYear === year);
     datasets.push({
-        label: `Year ${year}`,  // Fixing label formatting
-        data: filteredData.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
-        borderColor: colors[colorIndex % colors.length],
+        label: `${year}`,  // Fixing label formatting
+        data: filteredData.map(row => {
+           let pastDate = new Date(row.date);
+           pastDate.setFullYear(new Date().getFullYear());  // Normalize the year to current
+           return { x: pastDate, y: row.max_temperature_f };
+       }),
+       borderColor: colors[colorIndex % colors.length],
         borderWidth: 2,
         borderDash: [5, 5], // Dashed lines for previous years
         fill: false,
