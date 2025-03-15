@@ -27,6 +27,11 @@ GROUP BY DATE(date)
 ORDER BY date;
 """
 
+# Define the current date and the 7-day window around it
+current_date = pd.Timestamp.today()
+start_date = current_date - pd.DateOffset(days=7)  # 7 days before today
+end_date = current_date + pd.DateOffset(days=7)    # 7 days after today
+
 # Query for past 5 years (same date range, previous years)
 query_past = f"""
 SELECT DATE(date) as date, EXTRACT(YEAR FROM date) as pYear, 
@@ -35,8 +40,8 @@ FROM lake_data
 WHERE 
     EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5 
                               AND EXTRACT(YEAR FROM CURRENT_DATE) - 1
-    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR(CAST('2025-02-22' AS DATE), 'MM-DD') 
-                                 AND TO_CHAR(CAST('2025-04-05' AS DATE), 'MM-DD')
+    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR(CAST('{start_date.strftime('%Y-%m-%d')}' AS DATE), 'MM-DD') 
+                                 AND TO_CHAR(CAST('{end_date.strftime('%Y-%m-%d')}' AS DATE), 'MM-DD')
     AND depth_m < 1.5
 GROUP BY DATE(date), EXTRACT(YEAR FROM date)
 ORDER BY date;
@@ -117,32 +122,35 @@ html_content = f"""<!DOCTYPE html>
             data: {{
                 datasets: datasets
             }},
-            options: {{
-                scales: {{
-                    x: {{
-                        type: "time",
-                        time: {{
-                            unit: "day",
-                            tooltipFormat: "MMM d",
-                            displayFormats: {{
-                                day: "MMM d"
-                            }}
-                        }},
-                        title: {{
-                            display: true,
-                            text: "Date"
-                        }}
-                    }},
-                    y: {{
-                        suggestedMin: 50,
-                        suggestedMax: 90,
-                        title: {{
-                            display: true,
-                            text: "Temperature (°F)"
-                        }}
-                    }}
-                }}
-            }}
+options: {
+    scales: {
+        x: {
+            type: "time",
+            time: {
+                unit: "day",
+                tooltipFormat: "MMM d",
+                displayFormats: {
+                    day: "MMM d"
+                }
+            },
+            title: {
+                display: true,
+                text: "Date"
+            },
+            min: new Date(new Date().setDate(new Date().getDate() - 7)),  // 7 days before today
+            max: new Date(new Date().setDate(new Date().getDate() + 7))   // 7 days after today
+        },
+        y: {
+            suggestedMin: 40,
+            suggestedMax: 90,
+            title: {
+                display: true,
+                text: "Temperature (°F)"
+            }
+        }
+    }
+}
+
         }});
     </script>
 </body>
