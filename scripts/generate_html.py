@@ -122,35 +122,34 @@ html_content = f"""<!DOCTYPE html>
             data: {{
                 datasets: datasets
             }},
-options: {
-    scales: {
-        x: {
-            type: "time",
-            time: {
-                unit: "day",
-                tooltipFormat: "MMM d",
-                displayFormats: {
-                    day: "MMM d"
-                }
-            },
-            title: {
-                display: true,
-                text: "Date"
-            },
-            min: new Date(new Date().setDate(new Date().getDate() - 7)),  // 7 days before today
-            max: new Date(new Date().setDate(new Date().getDate() + 7))   // 7 days after today
-        },
-        y: {
-            suggestedMin: 40,
-            suggestedMax: 90,
-            title: {
-                display: true,
-                text: "Temperature (°F)"
-            }
-        }
-    }
-}
-
+            options: {{
+                scales: {{
+                    x: {{
+                        type: "time",
+                        time: {{
+                            unit: "day",
+                            tooltipFormat: "MMM d",
+                            displayFormats: {{
+                                day: "MMM d"
+                            }}
+                        }},
+                        title: {{
+                            display: true,
+                            text: "Date"
+                        }},
+                        min: new Date(new Date().setDate(new Date().getDate() - 7)),  // 7 days before today
+                        max: new Date(new Date().setDate(new Date().getDate() + 7))   // 7 days after today
+                    }},
+                    y: {{
+                        suggestedMin: 40,
+                        suggestedMax: 90,
+                        title: {{
+                            display: true,
+                            text: "Temperature (°F)"
+                        }}
+                    }}
+                }}
+            }}
         }});
     </script>
 </body>
