@@ -35,8 +35,8 @@ FROM lake_data
 WHERE 
     EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5 
                               AND EXTRACT(YEAR FROM CURRENT_DATE) - 1
-    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR('{start_date.strftime('%Y-%m-%d')}', 'MM-DD') 
-                                 AND TO_CHAR('{end_date.strftime('%Y-%m-%d')}', 'MM-DD')
+    AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR('{start_date.strftime('%Y-%m-%d')}'::DATE, 'MM-DD') 
+                                 AND TO_CHAR('{end_date.strftime('%Y-%m-%d')}'::DATE, 'MM-DD')
 AND depth_m < 1.5
 GROUP BY DATE(date), EXTRACT(YEAR FROM date)
 ORDER BY date;
