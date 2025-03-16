@@ -4,8 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Canvas element not found!");
         return;
     }
-    const ctx = canvas.getContext("2d");
     
+    let ctx = canvas.getContext("2d");  // Use `let` instead of `const`
+
     if (window.myChart) {
         window.myChart.destroy(); // Prevent duplicate charts
     }
