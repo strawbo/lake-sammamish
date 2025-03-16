@@ -88,9 +88,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (todayTemp !== null && pastAvgTemp !== null) {
         const tempDiff = (todayTemp - pastAvgTemp).toFixed(1);
         if (tempDiff > 0) {
-            comparisonText = `warmer than usual (↑ ${tempDiff}°F)`;
+            comparisonText = `${tempDiff}°F warmer than usual`;
         } else if (tempDiff < 0) {
-            comparisonText = `colder than usual (↓ ${Math.abs(tempDiff)}°F)`;
+            comparisonText = `${Math.abs(tempDiff)}°F colder than usual`;
         } else {
             comparisonText = `about average temperature`;
         }
