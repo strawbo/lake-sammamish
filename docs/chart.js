@@ -12,18 +12,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     ];
 
+    const colors = ["rgba(220, 53, 69, 1)", "rgba(255, 193, 7, 1)", "rgba(40, 167, 69, 1)", "rgba(108, 117, 125, 1)", "rgba(23, 162, 184, 1)"];
+
     // Extract unique years from past data
     const years = Array.from(new Set(dataPast.map(row => row.pYear))); 
+
+    let colorIndex = 0;
     
-    const latestYear = Math.max(...dataPast.map(row => row.pYear)); // Find the most recent past year
-    years.sort((a, b) => b - a); // Ensure years are in descending order (2024, 2023, ... 2020)
-    years.forEach((year, index) => {
+    years.forEach(year => {
         const filteredData = dataPast.filter(item => item.pYear === year);
-    
-        // Calculate grayscale dynamically: 0 = black, 255 = white
-        let grayValue = Math.round((index / (years.length - 1)) * 200); // Keep range from black to light gray
-        let color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-    
         datasets.push({
             label: `${year}`,
             data: filteredData.map(row => {
@@ -31,13 +28,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 pastDate.setFullYear(new Date().getFullYear());
                 return { x: pastDate, y: row.max_temperature_f };
             }),
-            borderColor: color,
+            borderColor: colors[colorIndex % colors.length],
             borderWidth: 2,
-            borderDash: [6, 3], // Dotted lines for past years
+            borderDash: [6, 3],
             pointRadius: 3,
             fill: false,
             tension: 0.2
         });
+        colorIndex++;
     });
 
     const chartTitle = document.getElementById("chart-title");
@@ -88,9 +86,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (todayTemp !== null && pastAvgTemp !== null) {
         const tempDiff = (todayTemp - pastAvgTemp).toFixed(1);
         if (tempDiff > 0) {
-            comparisonText = `${tempDiff}°F warmer than usual`;
+            comparisonText = `warmer than usual (↑ ${tempDiff}°F)`;
         } else if (tempDiff < 0) {
-            comparisonText = `${Math.abs(tempDiff)}°F colder than usual`;
+            comparisonText = `colder than usual (↓ ${Math.abs(tempDiff)}°F)`;
         } else {
             comparisonText = `about average temperature`;
         }
