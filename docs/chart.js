@@ -40,12 +40,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Define temperature bands
     const temperatureBands = [
-        { min: 40, max: 49, color: "rgba(173, 216, 255, 0.3)", label: "Ice Cold" },
-        { min: 50, max: 59, color: "rgba(173, 216, 230, 0.3)", label: "Very Cold" },
-        { min: 60, max: 67, color: "rgba(144, 238, 144, 0.3)", label: "Chilly" },
-        { min: 68, max: 74, color: "rgba(255, 223, 186, 0.3)", label: "Comfortable" },
+        { min: 40, max: 50, color: "rgba(153, 196, 255, 0.3)", label: "Ice Cold" },
+        { min: 50, max: 60, color: "rgba(173, 216, 230, 0.3)", label: "Very Cold" },
+        { min: 60, max: 68, color: "rgba(144, 238, 144, 0.3)", label: "Chilly" },
+        { min: 68, max: 75, color: "rgba(255, 223, 186, 0.3)", label: "Comfortable" },
         { min: 75, max: 80, color: "rgba(255, 165, 0, 0.3)", label: "Perfect" },
-        { min: 81, max: 90, color: "rgba(255, 69, 0, 0.3)", label: "Very Warm" }
+        { min: 80, max: 90, color: "rgba(255, 69, 0, 0.3)", label: "Very Warm" }
     ];
 
     // Plugin to draw temperature bands
