@@ -73,6 +73,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
+    // Adjust font sizes dynamically based on screen width
+    function getResponsiveFontSize() {
+        return Math.max(10, Math.min(16, window.innerWidth / 50)); // Adjust range as needed
+    }
+    
     // Create the chart
     const ctx = document.getElementById("lakeChart").getContext("2d");
 
@@ -90,10 +95,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         tooltipFormat: "MMM d",
                         displayFormats: { day: "MMM d" }
                     },
-                    title: { display: true, text: "Date" },
+                    title: { 
+                        display: true, 
+                        text: "Date", 
+                        font: { size: getResponsiveFontSize() } },
                     ticks: {
                         autoSkip: true,
-                        maxTicksLimit: 7
+                        maxTicksLimit: 7,
+                        font: { size: getResponsiveFontSize() }
                     },
                     min: new Date(new Date().setDate(new Date().getDate() - 7)),
                     max: new Date(new Date().setDate(new Date().getDate() + 7))
@@ -101,7 +110,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 y: {
                     suggestedMin: 40,
                     suggestedMax: 90,
-                    title: { display: true, text: "Temperature (°F)" },
+                    title: {
+                        display: true, 
+                        text: "Temperature (°F)",
+                        font: { size: getResponsiveFontSize() } 
+                    },
+                    ticks: {
+                        font: { size: getResponsiveFontSize() }
+                    },                    
                     grid: {
                         color: "rgba(200, 200, 200, 0.3)"
                     }
@@ -112,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     position: "top",
                     labels: {
                         usePointStyle: true,
-                        font: { size: 14 }
+                        font: { size: getResponsiveFontSize() }
                     }
                 },
                 tooltip: {
