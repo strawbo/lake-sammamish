@@ -1,20 +1,34 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const canvas = document.getElementById("lakeChart");
+    if (!canvas) {
+        console.error("Canvas element not found!");
+        return;
+    }
+    const ctx = canvas.getContext("2d");
+    
+    if (window.myChart) {
+        window.myChart.destroy(); // Prevent duplicate charts
+    }
+
     const datasets = [
         {
             label: "Current Year",
             data: dataCurrent.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
-            borderColor: "rgba(0, 123, 255, 1)",  // More vibrant blue
+            borderColor: "rgba(0, 123, 255, 1)",  
             backgroundColor: "rgba(0, 123, 255, 0.2)",
             fill: false,
-            borderWidth: 3, // Thicker line for current year
-            pointRadius: 4, // Make points more visible
+            borderWidth: 3,
+            pointRadius: 4,
             tension: 0.2
         }
     ];
     
     const colors = ["rgba(220, 53, 69, 1)", "rgba(255, 193, 7, 1)", "rgba(40, 167, 69, 1)", "rgba(108, 117, 125, 1)", "rgba(23, 162, 184, 1)"];
     let colorIndex = 0;
-    
+
+    // Ensure years is defined before looping
+    const years = Array.from(new Set(dataPast.map(row => row.pYear))); 
+
     years.forEach(year => {
         const filteredData = dataPast.filter(item => item.pYear === year);
         datasets.push({
@@ -26,16 +40,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
             borderColor: colors[colorIndex % colors.length],
             borderWidth: 2,
-            borderDash: [6, 3], // Dotted lines for past years
-            pointRadius: 3,  // Show data points for past years
+            borderDash: [6, 3],
+            pointRadius: 3,
             fill: false,
             tension: 0.2
         });
         colorIndex++;
     });
-
-
-    const ctx = document.getElementById("lakeChart").getContext("2d");
 
     const chartConfig = {
         type: "line",
@@ -54,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     title: { display: true, text: "Date" },
                     ticks: {
                         autoSkip: true,
-                        maxTicksLimit: 7 // Prevent overlapping labels
+                        maxTicksLimit: 7 
                     },
                     min: new Date(new Date().setDate(new Date().getDate() - 7)),
                     max: new Date(new Date().setDate(new Date().getDate() + 7))
@@ -64,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     suggestedMax: 90,
                     title: { display: true, text: "Temperature (°F)" },
                     grid: {
-                        color: "rgba(200, 200, 200, 0.3)" // Lighten gridlines
+                        color: "rgba(200, 200, 200, 0.3)"
                     }
                 }
             },
@@ -86,6 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     };
-    
-    new Chart(ctx, chartConfig);
+
+    window.myChart = new Chart(ctx, chartConfig); // Assign chart to global scope to avoid duplication
 });
