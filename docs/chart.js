@@ -38,6 +38,39 @@ document.addEventListener("DOMContentLoaded", function () {
         colorIndex++;
     });
 
+
+    const today = new Date();
+    const todayFormatted = today.toISOString().split("T")[0]; // Get YYYY-MM-DD format
+    
+    // Find today's temperature in dataCurrent
+    const todayTempEntry = dataCurrent.find(entry => entry.date.startsWith(todayFormatted));
+    const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
+
+    const pastTemps = dataPast
+        .filter(entry => entry.date.endsWith(todayFormatted.slice(5))) // Match MM-DD
+        .map(entry => entry.max_temperature_f);
+    
+    const pastAvgTemp = pastTemps.length > 0 ? 
+        (pastTemps.reduce((sum, temp) => sum + temp, 0) / pastTemps.length).toFixed(1) 
+        : null;
+
+    let comparisonText = "";
+    if (todayTemp !== null && pastAvgTemp !== null) {
+        const tempDiff = (todayTemp - pastAvgTemp).toFixed(1);
+        if (tempDiff > 0) {
+            comparisonText = `warmer than usual (↑ ${tempDiff}°F)`;
+        } else if (tempDiff < 0) {
+            comparisonText = `colder than usual (↓ ${Math.abs(tempDiff)}°F)`;
+        } else {
+            comparisonText = `about average temperature`;
+        }
+    }
+    
+    // Set the title with the computed values
+    document.getElementById("chart-title").innerText = 
+        `Lake Sammamish is ${comparisonText} (${todayTemp}°F)`;
+
+
     // Define temperature bands
     const temperatureBands = [
         { min: 40, max: 50, color: "rgba(153, 196, 255, 0.3)", label: "Ice Cold" },
