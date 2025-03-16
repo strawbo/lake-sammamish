@@ -75,8 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
     
     console.log("Past Temps for Today:", pastTempsForToday)
     
-    const pastAvgTemp = pastTempsForToday.length > 0 ? 
-        (pastTempsForToday.reduce((sum, temp) => sum + temp, 0) / pastTempsForToday.length).toFixed(1) 
+    // Compute average past temperature safely
+    const pastAvgTemp = pastTempsForToday.length
+        ? (pastTempsForToday.reduce((sum, entry) => sum + Number(entry.max_temperature_f), 0) / pastTempsForToday.length).toFixed(1)
         : null;
 
     console.log("Past Average Temp:", pastAvgTemp);
