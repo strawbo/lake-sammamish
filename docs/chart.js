@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const todayFormatted = today.toISOString().split("T")[0]; // Get YYYY-MM-DD format
 
-    console.log("Today's Date:", todayFormatted);
+    console.log("Today's Date in Pacific Time Zone:", todayFormatted);
     console.log("DataCurrent:", dataCurrent);
     
     // Find today's temperature in dataCurrent
