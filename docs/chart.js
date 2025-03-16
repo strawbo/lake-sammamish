@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Label inside the band
                 ctx.fillStyle = "black";
-                ctx.font = `${Math.max(10, Math.min(16, window.innerWidth / 50))}px Arial`; // Adjust font size dynamically
+                ctx.font = `${Math.max(16, Math.min(24, window.innerWidth / 50))}px Arial`; // Adjust font size dynamically
                 ctx.fillText(
                     band.label, 
                     x.left + 10,
