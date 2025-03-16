@@ -38,21 +38,36 @@ document.addEventListener("DOMContentLoaded", function () {
         colorIndex++;
     });
 
+    const chartTitle = document.getElementById("chart-title");
+
+    if (!chartTitle) {
+        console.error("Error: <h1 id='chart-title'> not found in the HTML.");
+        return;
+    }
 
     const today = new Date();
     const todayFormatted = today.toISOString().split("T")[0]; // Get YYYY-MM-DD format
+
+    console.log("Today's Date:", todayFormatted);
+    console.log("DataCurrent:", dataCurrent);
     
     // Find today's temperature in dataCurrent
     const todayTempEntry = dataCurrent.find(entry => entry.date.startsWith(todayFormatted));
+    console.log("Today's Temp Entry:", todayTempEntry);
+    
     const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
 
     const pastTemps = dataPast
         .filter(entry => entry.date.endsWith(todayFormatted.slice(5))) // Match MM-DD
         .map(entry => entry.max_temperature_f);
+
+    console.log("Past Temps for Today:", pastTemps)
     
     const pastAvgTemp = pastTemps.length > 0 ? 
         (pastTemps.reduce((sum, temp) => sum + temp, 0) / pastTemps.length).toFixed(1) 
         : null;
+
+    console.log("Past Average Temp:", pastAvgTemp);
 
     let comparisonText = "";
     if (todayTemp !== null && pastAvgTemp !== null) {
@@ -67,8 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // Set the title with the computed values
-    document.getElementById("chart-title").innerText = 
-        `Lake Sammamish is ${comparisonText} (${todayTemp}°F)`;
+    chartTitle.innerText = `Lake Sammamish is ${comparisonText} (${todayTemp}°F)`;
 
 
     // Define temperature bands
