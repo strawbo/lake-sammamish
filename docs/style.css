@@ -10,8 +10,8 @@ html, body {
 /* Make sure the chart container fits within the viewport */
 .chart-container {
     width: 100vw; /* Full viewport width */
-    max-width: 1000px; /* Prevents it from being too large on big screens */
-    height: 100vh; /* Full viewport height */
+    max-width: 100%; /* Prevents it from being too large on big screens */
+    height: 90vh; /* Full viewport height */
     margin: 0 auto; /* Centers it horizontally */
     padding: 10px;
     box-sizing: border-box; /* Prevents padding from making it too big */
