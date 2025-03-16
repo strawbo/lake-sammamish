@@ -89,10 +89,10 @@ document.addEventListener("DOMContentLoaded", function () {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    display: false;
+                    display: false
                 },
                 y: {
-                    display: false;
+                    display: false
                 }
             },
             plugins: {
