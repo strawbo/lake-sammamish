@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    const today = new Date();
+    const now = new Date();
+    const today = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+
     const todayFormatted = today.toISOString().split("T")[0]; // Get YYYY-MM-DD format
 
     console.log("Today's Date:", todayFormatted);
