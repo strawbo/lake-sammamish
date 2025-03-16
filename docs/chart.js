@@ -67,14 +67,16 @@ document.addEventListener("DOMContentLoaded", function () {
     
     const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
 
-    const pastTemps = dataPast
-        .filter(entry => entry.date.endsWith(todayStr.slice(5))) // Match MM-DD
-        .map(entry => entry.max_temperature_f);
-
-    console.log("Past Temps for Today:", pastTemps)
+    // Extract today's MM-DD for lookup
+    const todayMonthDay = todayStr.slice(5);  // Extract "MM-DD" part from "YYYY-MM-DD"
     
-    const pastAvgTemp = pastTemps.length > 0 ? 
-        (pastTemps.reduce((sum, temp) => sum + temp, 0) / pastTemps.length).toFixed(1) 
+    // Find matching past temperatures for today’s date
+    const pastTempsForToday = dataPast.filter(entry => entry.date.slice(5, 10) === todayMonthDay);
+    
+    console.log("Past Temps for Today:", pastTempsForToday)
+    
+    const pastAvgTemp = pastTempsForToday.length > 0 ? 
+        (pastTempsForToday.reduce((sum, temp) => sum + temp, 0) / pastTempsForToday.length).toFixed(1) 
         : null;
 
     console.log("Past Average Temp:", pastAvgTemp);
