@@ -45,16 +45,24 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    // Get the current date in Pacific Time
     const now = new Date();
-    const today = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+    const todayPacificStr = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(now);
 
-    const todayFormatted = today.toISOString().split("T")[0]; // Get YYYY-MM-DD format
-
-    console.log("Today's Date in Pacific Time Zone:", todayFormatted);
+    // Convert to YYYY-MM-DD format (match dataset)
+    const [month, day, year] = todayPacificStr.split("/");
+    const todayStr = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    
+    console.log("Pacific Time Today's Date:", todayStr);
     console.log("DataCurrent:", dataCurrent);
     
     // Find today's temperature in dataCurrent
-    const todayTempEntry = dataCurrent.find(entry => entry.date.startsWith(todayFormatted));
+    const todayTempEntry = dataCurrent.find(entry => entry.date.startsWith(todayStr));
     console.log("Today's Temp Entry:", todayTempEntry);
     
     const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
