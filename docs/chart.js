@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
 
     const pastTemps = dataPast
-        .filter(entry => entry.date.endsWith(todayFormatted.slice(5))) // Match MM-DD
+        .filter(entry => entry.date.endsWith(todayStr.slice(5))) // Match MM-DD
         .map(entry => entry.max_temperature_f);
 
     console.log("Past Temps for Today:", pastTemps)
