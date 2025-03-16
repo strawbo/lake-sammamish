@@ -1,21 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const canvas = document.getElementById("lakeChart");
-    if (!canvas) {
-        console.error("Canvas element not found!");
-        return;
-    }
-    
-    let ctx = canvas.getContext("2d");  // Use `let` instead of `const`
-
-    if (window.myChart) {
-        window.myChart.destroy(); // Prevent duplicate charts
-    }
-
     const datasets = [
         {
             label: "Current Year",
             data: dataCurrent.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
-            borderColor: "rgba(0, 123, 255, 1)",  
+            borderColor: "rgba(0, 123, 255, 1)",
             backgroundColor: "rgba(0, 123, 255, 0.2)",
             fill: false,
             borderWidth: 3,
@@ -23,12 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
             tension: 0.2
         }
     ];
-    
+
     const colors = ["rgba(220, 53, 69, 1)", "rgba(255, 193, 7, 1)", "rgba(40, 167, 69, 1)", "rgba(108, 117, 125, 1)", "rgba(23, 162, 184, 1)"];
     let colorIndex = 0;
-
-    // Ensure years is defined before looping
-    const years = Array.from(new Set(dataPast.map(row => row.pYear))); 
 
     years.forEach(year => {
         const filteredData = dataPast.filter(item => item.pYear === year);
@@ -49,7 +34,44 @@ document.addEventListener("DOMContentLoaded", function () {
         colorIndex++;
     });
 
-    const chartConfig = {
+    // Define temperature bands
+    const temperatureBands = [
+        { min: 40, max: 60, color: "rgba(173, 216, 230, 0.3)", label: "Cold" },
+        { min: 60, max: 70, color: "rgba(144, 238, 144, 0.3)", label: "Cool" },
+        { min: 70, max: 75, color: "rgba(255, 223, 186, 0.3)", label: "Warm" },
+        { min: 75, max: 80, color: "rgba(255, 165, 0, 0.3)", label: "Perfect" },
+        { min: 80, max: 90, color: "rgba(255, 69, 0, 0.3)", label: "Very Warm" }
+    ];
+
+    // Plugin to draw temperature bands
+    const backgroundBandsPlugin = {
+        id: "backgroundBands",
+        beforeDraw: (chart) => {
+            const { ctx, scales: { y, x } } = chart;
+            ctx.save();
+
+            temperatureBands.forEach(band => {
+                ctx.fillStyle = band.color;
+                ctx.fillRect(x.left, y.getPixelForValue(band.max), x.right - x.left, y.getPixelForValue(band.min) - y.getPixelForValue(band.max));
+
+                // Label inside the band
+                ctx.fillStyle = "black";
+                ctx.font = "bold 12px Arial";
+                ctx.fillText(
+                    band.label, 
+                    x.left + 10, // Position slightly inside
+                    y.getPixelForValue((band.min + band.max) / 2) // Center the label
+                );
+            });
+
+            ctx.restore();
+        }
+    };
+
+    // Create the chart
+    const ctx = document.getElementById("lakeChart").getContext("2d");
+
+    new Chart(ctx, {
         type: "line",
         data: { datasets: datasets },
         options: {
@@ -66,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     title: { display: true, text: "Date" },
                     ticks: {
                         autoSkip: true,
-                        maxTicksLimit: 7 
+                        maxTicksLimit: 7
                     },
                     min: new Date(new Date().setDate(new Date().getDate() - 7)),
                     max: new Date(new Date().setDate(new Date().getDate() + 7))
@@ -90,14 +112,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(tooltipItem) {
+                        label: function (tooltipItem) {
                             return `${tooltipItem.dataset.label}: ${tooltipItem.raw.y}°F`;
                         }
                     }
                 }
             }
-        }
-    };
-
-    window.myChart = new Chart(ctx, chartConfig); // Assign chart to global scope to avoid duplication
+        },
+        plugins: [backgroundBandsPlugin] // Apply the plugin
+    });
 });
