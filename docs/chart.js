@@ -89,10 +89,24 @@ document.addEventListener("DOMContentLoaded", function () {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    display: false
+                    type: "time",
+                     time: {
+                         unit: "day",
+                         tooltipFormat: "MMM d",
+                         displayFormats: { day: "MMM d" }
+                     },
+                     title: { display: false}, 
+                     ticks: { display: false},
+                     grid: { display: false},
+                     min: new Date(new Date().setDate(new Date().getDate() - 7)),
+                     max: new Date(new Date().setDate(new Date().getDate() + 7))
                 },
                 y: {
-                    display: false
+                     suggestedMin: 40,
+                     suggestedMax: 90,
+                     title: { display: false } ,
+                     ticks: { display: false },                    
+                     grid: { display: false }
                 }
             },
             plugins: {
