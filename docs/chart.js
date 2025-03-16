@@ -13,8 +13,12 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
     const colors = ["rgba(220, 53, 69, 1)", "rgba(255, 193, 7, 1)", "rgba(40, 167, 69, 1)", "rgba(108, 117, 125, 1)", "rgba(23, 162, 184, 1)"];
-    let colorIndex = 0;
 
+    // Extract unique years from past data
+    const years = Array.from(new Set(dataPast.map(row => row.pYear))); 
+
+    let colorIndex = 0;
+    
     years.forEach(year => {
         const filteredData = dataPast.filter(item => item.pYear === year);
         datasets.push({
@@ -59,8 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.font = "bold 12px Arial";
                 ctx.fillText(
                     band.label, 
-                    x.left + 10, // Position slightly inside
-                    y.getPixelForValue((band.min + band.max) / 2) // Center the label
+                    x.left + 10,
+                    y.getPixelForValue((band.min + band.max) / 2)
                 );
             });
 
@@ -119,6 +123,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         },
-        plugins: [backgroundBandsPlugin] // Apply the plugin
+        plugins: [backgroundBandsPlugin] 
     });
 });
