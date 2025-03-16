@@ -89,38 +89,10 @@ document.addEventListener("DOMContentLoaded", function () {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: "time",
-                    time: {
-                        unit: "day",
-                        tooltipFormat: "MMM d",
-                        displayFormats: { day: "MMM d" }
-                    },
-                    title: { 
-                        display: true, 
-                        text: "Date", 
-                        font: { size: getResponsiveFontSize() } },
-                    ticks: {
-                        autoSkip: true,
-                        maxTicksLimit: 7,
-                        font: { size: getResponsiveFontSize() }
-                    },
-                    min: new Date(new Date().setDate(new Date().getDate() - 7)),
-                    max: new Date(new Date().setDate(new Date().getDate() + 7))
+                    display: false;
                 },
                 y: {
-                    suggestedMin: 40,
-                    suggestedMax: 90,
-                    title: {
-                        display: true, 
-                        text: "Temperature (°F)",
-                        font: { size: getResponsiveFontSize() } 
-                    },
-                    ticks: {
-                        font: { size: getResponsiveFontSize() }
-                    },                    
-                    grid: {
-                        color: "rgba(200, 200, 200, 0.3)"
-                    }
+                    display: false;
                 }
             },
             plugins: {
