@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
             borderColor: "rgba(0, 123, 255, 1)",
             backgroundColor: "rgba(0, 123, 255, 0.2)",
             fill: false,
-            borderWidth: 3,
+            borderWidth: 5,
             pointRadius: 4,
             tension: 0.2
         }
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return { x: pastDate, y: row.max_temperature_f };
             }),
             borderColor: color,
-            borderWidth: 2,
+            borderWidth: 1,
             borderDash: [6, 3], // Dotted lines for past years
             pointRadius: 3,
             fill: false,
