@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const chartTitle = document.getElementById("description");
+    const chartTitle = document.getElementById("tempDescription");
 
     if (!chartTitle) {
-        console.error("Error: <h1 id='description'> not found in the HTML.");
+        console.error("Error: <h2 id='tempDescription'> not found in the HTML.");
         return;
     }
 
