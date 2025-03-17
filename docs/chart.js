@@ -92,13 +92,13 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (tempDiff < 0) {
             comparisonText = `${Math.abs(tempDiff)}°F colder than usual`;
         } else {
-            comparisonText = `about average temperature`;
+            comparisonText = `About average temperature`;
         }
     }
 
     // Function to format date as "MM/DD at HH:mm"
     function formatTimestamp(date) {
-        const options = { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false };
+        const options = { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: true };
         return new Intl.DateTimeFormat("en-US", options).format(date);
     }
     
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     
     // Set the title with the computed values
-    chartTitle.innerText = `Lake Sammamish is ${comparisonText} (${todayTemp}°F)`;
+    chartTitle.innerText = `${comparisonText} (${todayTemp}°F)`;
 
 
     // Define temperature bands
