@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const chartTitle = document.getElementById("chart-title");
+    const chartTitle = document.getElementById("description");
 
     if (!chartTitle) {
-        console.error("Error: <h1 id='chart-title'> not found in the HTML.");
+        console.error("Error: <h1 id='description'> not found in the HTML.");
         return;
     }
 
@@ -95,6 +95,20 @@ document.addEventListener("DOMContentLoaded", function () {
             comparisonText = `about average temperature`;
         }
     }
+
+    // Function to format date as "MM/DD at HH:mm"
+    function formatTimestamp(date) {
+        const options = { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false };
+        return new Intl.DateTimeFormat("en-US", options).format(date);
+    }
+    
+    // Get the latest timestamp from dataCurrent (assumes last entry is most recent)
+    const latestEntry = dataCurrent[dataCurrent.length - 1]; // Last recorded temperature
+    const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
+    
+    // Set the timestamp in the HTML
+    document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
+
     
     // Set the title with the computed values
     chartTitle.innerText = `Lake Sammamish is ${comparisonText} (${todayTemp}°F)`;
