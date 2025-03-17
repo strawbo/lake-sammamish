@@ -37,3 +37,9 @@ canvas {
     max-height: 100%; /* Ensures it does not exceed viewport */
     height: auto; /* Allows it to resize dynamically */
 }
+
+.timestamp {
+    font-size: 0.9rem;
+    color: gray;
+    margin-top: -10px;  /* Adjust spacing */
+}
