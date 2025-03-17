@@ -48,6 +48,7 @@ canvas {
 
 .timestamp {
     font-size: 0.9rem;
+    text-align: center;
     color: gray;
     margin-top: -10px;  /* Adjust spacing */
 }
