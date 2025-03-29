@@ -36,7 +36,7 @@ p {
 .chart-container {
     width: 100vw; /* Full viewport width */
     max-width: 100%; /* Prevents it from being too large on big screens */
-    height: 75vh; /* Full viewport height */
+    height: 78vh; /* Full viewport height */
     margin: 0 auto; /* Centers it horizontally */
     padding: 10px;
     box-sizing: border-box; /* Prevents padding from making it too big */
