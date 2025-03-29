@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Label inside the band
                 ctx.fillStyle = "black";
-                ctx.font = `${Math.max(18, Math.min(20, window.innerWidth / 45))}px Arial`; // Adjust font size dynamically
+                ctx.font = `${Math.max(20, Math.min(24, window.innerWidth / 30))}px Arial`; // Adjust font size dynamically
                 ctx.fillText(
                     band.label, 
                     x.left + 10,
@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Adjust font sizes dynamically based on screen width
     function getResponsiveFontSize() {
-        return Math.max(18, Math.min(20, window.innerWidth / 45)); // Adjust range as needed
+        return Math.max(20, Math.min(24, window.innerWidth / 30)); // Adjust range as needed
     }
     
     // Create the chart
