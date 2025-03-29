@@ -36,7 +36,7 @@ p {
 .chart-container {
     width: 100vw; /* Full viewport width */
     max-width: 100%; /* Prevents it from being too large on big screens */
-    height: 85vh; /* Full viewport height */
+    height: 86vh; /* Full viewport height */
     margin: 0 auto; /* Centers it horizontally */
     padding: 10px;
     box-sizing: border-box; /* Prevents padding from making it too big */
@@ -54,7 +54,7 @@ canvas {
 }
 
 .timestamp {
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     text-align: center;
     color: gray;
     margin-top: -10px;  /* Adjust spacing */
