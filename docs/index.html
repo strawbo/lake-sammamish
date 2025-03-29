@@ -33,6 +33,10 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
     🔄 Refresh
 </button>
-
+<script>
+    document.getElementById("refreshButton").addEventListener("click", () => {
+        location.reload(true); // Try hard reload
+    });
+</script>
 </body>
 </html>
