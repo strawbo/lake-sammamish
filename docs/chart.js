@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getResponsiveFontSize(canvas) {
         const width = canvas.clientWidth;
-        return Math.min(32, Math.max(26, width / 10));
+        return Math.min(28, Math.max(22, width / 15));
     }
 
     const backgroundBandsPlugin = {
