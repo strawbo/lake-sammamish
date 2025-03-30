@@ -153,17 +153,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function getResponsiveFontSize() {
         return Math.min(24, Math.max(22, window.innerWidth / 20)); // Adjust range as needed
     }
+    
+    // Create the chart
+    const ctx = document.getElementById("lakeChart").getContext("2d");
 
     const canvas = document.getElementById("lakeChart");
     const dpr = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
     ctx.scale(dpr, dpr);
-
     
-    // Create the chart
-    const ctx = document.getElementById("lakeChart").getContext("2d");
-
     new Chart(ctx, {
         type: "line",
         data: { datasets: datasets },
