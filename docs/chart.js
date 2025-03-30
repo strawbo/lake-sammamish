@@ -12,18 +12,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     ];
 
-    // Extract unique years from past data
     const years = Array.from(new Set(dataPast.map(row => row.pYear))); 
-    
-    const latestYear = Math.max(...dataPast.map(row => row.pYear)); // Find the most recent past year
-    years.sort((a, b) => b - a); // Ensure years are in descending order (2024, 2023, ... 2020)
+    const latestYear = Math.max(...dataPast.map(row => row.pYear));
+    years.sort((a, b) => b - a);
     years.forEach((year, index) => {
         const filteredData = dataPast.filter(item => item.pYear === year);
-    
-        // Calculate grayscale dynamically: 0 = black, 255 = white
-        let grayValue = Math.round((index / (years.length - 1)) * 200); // Keep range from black to light gray
+        let grayValue = Math.round((index / (years.length - 1)) * 200);
         let color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-    
         datasets.push({
             label: `${year}`,
             data: filteredData.map(row => {
@@ -33,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
             borderColor: color,
             borderWidth: 1,
-            borderDash: [6, 3], // Dotted lines for past years
+            borderDash: [6, 3],
             pointRadius: 3,
             fill: false,
             tension: 0.2
@@ -41,80 +36,45 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const chartTitle = document.getElementById("tempDescription");
-
     if (!chartTitle) {
         console.error("Error: <h2 id='tempDescription'> not found in the HTML.");
         return;
     }
 
-    // Get the current date in Pacific Time
     const now = new Date();
     const todayPacificStr = new Intl.DateTimeFormat("en-US", {
         timeZone: "America/Los_Angeles",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
+        year: "numeric", month: "2-digit", day: "2-digit"
     }).format(now);
 
-    // Convert to YYYY-MM-DD format (match dataset)
     const [month, day, year] = todayPacificStr.split("/");
     const todayStr = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    
-    console.log("Pacific Time Today's Date:", todayStr);
-    console.log("DataCurrent:", dataCurrent);
-    
-    // Find today's temperature in dataCurrent
     const todayTempEntry = dataCurrent.find(entry => entry.date.startsWith(todayStr));
-    console.log("Today's Temp Entry:", todayTempEntry);
-    
     const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
-
-    // Extract today's MM-DD for lookup
-    const todayMonthDay = todayStr.slice(5);  // Extract "MM-DD" part from "YYYY-MM-DD"
-    
-    // Find matching past temperatures for today’s date
+    const todayMonthDay = todayStr.slice(5);
     const pastTempsForToday = dataPast.filter(entry => entry.date.slice(5, 10) === todayMonthDay);
-    
-    console.log("Past Temps for Today:", pastTempsForToday)
-    
-    // Compute average past temperature safely
     const pastAvgTemp = pastTempsForToday.length
         ? (pastTempsForToday.reduce((sum, entry) => sum + Number(entry.max_temperature_f), 0) / pastTempsForToday.length).toFixed(1)
         : null;
 
-    console.log("Past Average Temp:", pastAvgTemp);
-
     let comparisonText = "";
     if (todayTemp !== null && pastAvgTemp !== null) {
         const tempDiff = (todayTemp - pastAvgTemp).toFixed(1);
-        if (tempDiff > 0) {
-            comparisonText = `${tempDiff}°F warmer than usual`;
-        } else if (tempDiff < 0) {
-            comparisonText = `${Math.abs(tempDiff)}°F colder than usual`;
-        } else {
-            comparisonText = `About average temperature`;
-        }
+        if (tempDiff > 0) comparisonText = `${tempDiff}°F warmer than usual`;
+        else if (tempDiff < 0) comparisonText = `${Math.abs(tempDiff)}°F colder than usual`;
+        else comparisonText = `About average temperature`;
     }
 
-    // Function to format date as "MM/DD at HH:mm"
     function formatTimestamp(date) {
         const options = { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: true };
         return new Intl.DateTimeFormat("en-US", options).format(date);
     }
-    
-    // Get the latest timestamp from dataCurrent (assumes last entry is most recent)
-    const latestEntry = dataCurrent[dataCurrent.length - 1]; // Last recorded temperature
-    const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
-    
-    // Set the timestamp in the HTML
-    document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
 
-    
-    // Set the title with the computed values
+    const latestEntry = dataCurrent[dataCurrent.length - 1];
+    const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
+    document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
     chartTitle.innerText = `${comparisonText} (${todayTemp}°F)`;
 
-
-    // Define temperature bands
     const temperatureBands = [
         { min: 40, max: 50, color: "rgba(133, 176, 255, 0.6)", label: "Ice Cold (below 50)" },
         { min: 50, max: 60, color: "rgba(133, 176, 255, 0.3)", label: "Very Cold (50-60)" },
@@ -124,45 +84,36 @@ document.addEventListener("DOMContentLoaded", function () {
         { min: 80, max: 90, color: "rgba(255, 69, 0, 0.3)", label: "Very Warm (above 80)" }
     ];
 
-    // Plugin to draw temperature bands
+    function getResponsiveFontSize(canvas) {
+        const width = canvas.clientWidth;
+        return Math.min(24, Math.max(20, width / 20));
+    }
+
     const backgroundBandsPlugin = {
         id: "backgroundBands",
         beforeDraw: (chart) => {
-            const { ctx, scales: { y, x } } = chart;
+            const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+            const canvas = chart.canvas;
+            const fontSize = getResponsiveFontSize(canvas);
             ctx.save();
-
             temperatureBands.forEach(band => {
                 ctx.fillStyle = band.color;
-                ctx.fillRect(x.left, y.getPixelForValue(band.max), x.right - x.left, y.getPixelForValue(band.min) - y.getPixelForValue(band.max));
-
-                // Label inside the band
+                ctx.fillRect(left, y.getPixelForValue(band.max), right - left, y.getPixelForValue(band.min) - y.getPixelForValue(band.max));
                 ctx.fillStyle = "black";
-                ctx.font = `${Math.min(24, Math.max(22, window.innerWidth / 20))}px Arial`; // Adjust font size dynamically
-                ctx.fillText(
-                    band.label, 
-                    x.left + 10,
-                    y.getPixelForValue((band.min + band.max) / 2)
-                );
+                ctx.font = `${fontSize}px Arial`;
+                ctx.fillText(band.label, left + 10, y.getPixelForValue((band.min + band.max) / 2));
             });
-
             ctx.restore();
         }
     };
 
-    // Adjust font sizes dynamically based on screen width
-    function getResponsiveFontSize() {
-        return Math.min(24, Math.max(22, window.innerWidth / 20)); // Adjust range as needed
-    }
-    
-    // Create the chart
-    const ctx = document.getElementById("lakeChart").getContext("2d");
-
     const canvas = document.getElementById("lakeChart");
+    const ctx = canvas.getContext("2d");
     const dpr = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * dpr;
     canvas.height = canvas.clientHeight * dpr;
     ctx.scale(dpr, dpr);
-    
+
     new Chart(ctx, {
         type: "line",
         data: { datasets: datasets },
@@ -172,23 +123,19 @@ document.addEventListener("DOMContentLoaded", function () {
             scales: {
                 x: {
                     type: "time",
-                     time: {
-                         unit: "day",
-                         tooltipFormat: "MMM d",
-                         displayFormats: { day: "MMM d" }
-                     },
-                     title: { display: false}, 
-                     ticks: { display: false},
-                     grid: { display: false},
-                     min: new Date(new Date().setDate(new Date().getDate() - 7)),
-                     max: new Date(new Date().setDate(new Date().getDate() + 7))
+                    time: { unit: "day", tooltipFormat: "MMM d", displayFormats: { day: "MMM d" } },
+                    title: { display: false },
+                    ticks: { display: false },
+                    grid: { display: false },
+                    min: new Date(new Date().setDate(new Date().getDate() - 7)),
+                    max: new Date(new Date().setDate(new Date().getDate() + 7))
                 },
                 y: {
-                     suggestedMin: 40,
-                     suggestedMax: 90,
-                     title: { display: false } ,
-                     ticks: { display: false },                    
-                     grid: { display: false }
+                    suggestedMin: 40,
+                    suggestedMax: 90,
+                    title: { display: false },
+                    ticks: { display: false },
+                    grid: { display: false }
                 }
             },
             plugins: {
@@ -196,7 +143,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     position: "top",
                     labels: {
                         usePointStyle: true,
-                        font: { size: getResponsiveFontSize() }
+                        font: {
+                            size: getResponsiveFontSize(canvas)
+                        }
                     }
                 },
                 tooltip: {
@@ -208,6 +157,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         },
-        plugins: [backgroundBandsPlugin] 
+        plugins: [backgroundBandsPlugin]
     });
 });
