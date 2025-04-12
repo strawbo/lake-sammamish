@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function formatTimestamp(date) {
-        const options = { month: "numeric", day: "numeric" };
+        const options = { month: "1-digit", day: "1-digit", hour: "2-digit", minute: "2-digit", hour12: true };
         return new Intl.DateTimeFormat("en-US", options).format(date);
     }
 
