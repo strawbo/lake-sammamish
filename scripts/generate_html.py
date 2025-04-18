@@ -23,7 +23,7 @@ SELECT DATE(date) as date, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC),
 FROM lake_data
 WHERE date BETWEEN '{start_date.strftime('%Y-%m-%d')}' AND '{end_date.strftime('%Y-%m-%d')}'
 AND depth_m < 1.5
-GROUP BY DATE(date)
+GROUP BY date
 ORDER BY date;
 """
 
@@ -41,7 +41,7 @@ WHERE EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5
     AND TO_CHAR(date, 'MM-DD') BETWEEN TO_CHAR(CAST('{start_date.strftime('%Y-%m-%d')}' AS DATE), 'MM-DD') 
                                  AND TO_CHAR(CAST('{end_date.strftime('%Y-%m-%d')}' AS DATE), 'MM-DD')
     AND depth_m < 1.5
-GROUP BY DATE(date), EXTRACT(YEAR FROM date)
+GROUP BY date, EXTRACT(YEAR FROM date)
 ORDER BY date;
 """
 
