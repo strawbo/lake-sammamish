@@ -19,7 +19,7 @@ end_date = current_date + pd.DateOffset(weeks=3)
 
 # Query for current year
 query_current = f"""
-SELECT DATE(date) as date, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
+SELECT date, ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
 FROM lake_data
 WHERE date BETWEEN '{start_date.strftime('%Y-%m-%d')}' AND '{end_date.strftime('%Y-%m-%d')}'
 AND depth_m < 1.5
@@ -33,7 +33,7 @@ end_date = current_date + pd.DateOffset(days=7)
 
 # Query for past 5 years
 query_past = f"""
-SELECT DATE(date) as date, EXTRACT(YEAR FROM date) as pYear, 
+SELECT date, EXTRACT(YEAR FROM date) as pYear, 
        ROUND(CAST(MAX(temperature_c * 9/5 + 32) AS NUMERIC), 1) as max_temperature_f
 FROM lake_data
 WHERE EXTRACT(YEAR FROM date) BETWEEN EXTRACT(YEAR FROM CURRENT_DATE) - 5 
