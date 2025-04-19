@@ -144,8 +144,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     labels: {
                         usePointStyle: true,
                         font: {
-                            size: getResponsiveFontSize(canvas)
-                        }
+                            size: getResponsiveFontSize(canvas) * 0.7
+                        },
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 20
                     }
                 },
                 tooltip: {
