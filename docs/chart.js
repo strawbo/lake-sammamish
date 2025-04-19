@@ -76,11 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
     chartTitle.innerText = `${comparisonText} (${todayTemp}°F)`;
 
     const temperatureBands = [
-        { min: 40, max: 50, color: "rgba(46, 134, 193, 0.6)", label: "Ice Cold (below 50)" },
-        { min: 50, max: 60, color: "rgba(93, 173, 226, 0.6)", label: "Very Cold (50-60)" },
-        { min: 60, max: 68, color: "rgba(174, 214, 241, 0.6)", label: "Chilly (60-68)" },
-        { min: 68, max: 75, color: "rgba(250, 215, 160, 0.6)", label: "Comfortable (68-75)" },
-        { min: 75, max: 80, color: "rgba(245, 176, 65, 0.6)", label: "Perfect (75-80)" },
+        { min: 40, max: 55, color: "rgba(46, 134, 193, 0.6)", label: "Frigid (below 55)" },
+        { min: 55, max: 65, color: "rgba(93, 173, 226, 0.6)", label: "Very Cold (55-65)" },
+        { min: 65, max: 70, color: "rgba(174, 214, 241, 0.6)", label: "Cold (65-70)" },
+        { min: 70, max: 74, color: "rgba(250, 215, 160, 0.6)", label: "Cool (70-74)" },
+        { min: 74, max: 80, color: "rgba(245, 176, 65, 0.6)", label: "Ideal (74-80)" },
         { min: 80, max: 90, color: "rgba(231, 76, 60, 0.6)", label: "Very Warm (above 80)" }
     ];
 
