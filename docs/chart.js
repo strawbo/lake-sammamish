@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     labels: {
                         usePointStyle: true,
                         font: {
-                            size: getResponsiveFontSize(canvas) * 0.7
+                            size: getResponsiveFontSize(canvas) * 0.8
                         },
                         boxWidth: 10,
                         boxHeight: 10,
