@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
     document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
     headerTemp.innerText = `${todayTemp}°F`;
-    chartTitle.innerText = `${comparisonText} (${todayTemp}°F)`;
+    chartTitle.innerText = `${comparisonText}`;
 
     const temperatureBands = [
         { min: 40, max: 50, color: "rgba(46, 134, 193, 0.6)", label: "Ice Cold (below 50)" },
