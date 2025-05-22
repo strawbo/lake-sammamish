@@ -35,6 +35,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+    const headerTemp = document.getElementById("temp");
+    if (!headerTemp) {
+        console.error("Error: <h2 id='temp'> not found in the HTML.");
+        return;
+    }
+    
     const chartTitle = document.getElementById("tempDescription");
     if (!chartTitle) {
         console.error("Error: <h2 id='tempDescription'> not found in the HTML.");
@@ -73,6 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const latestEntry = dataCurrent[dataCurrent.length - 1];
     const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
     document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
+    headerTemp.innerText = `${todayTemp}°F`;
     chartTitle.innerText = `${comparisonText} (${todayTemp}°F)`;
 
     const temperatureBands = [
