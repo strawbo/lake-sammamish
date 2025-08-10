@@ -28,8 +28,8 @@ form_data.update({
     "ctl00$kcMasterPagePlaceHolder$c_TypeDropDownList": "Profile",
     "ctl00$kcMasterPagePlaceHolder$c_BuoyDropDownList": "Sammamish",
     "ctl00$kcMasterPagePlaceHolder$c_YearDropDownList": "2025",
-    "ctl00$kcMasterPagePlaceHolder$c_MonthStartDropDownList": "7",
-    "ctl00$kcMasterPagePlaceHolder$c_EndMonthDropDownList": "7",
+    "ctl00$kcMasterPagePlaceHolder$c_MonthStartDropDownList": "8",
+    "ctl00$kcMasterPagePlaceHolder$c_EndMonthDropDownList": "8",
     "ctl00$kcMasterPagePlaceHolder$c_DownloadButton": "Download"
 })
 
