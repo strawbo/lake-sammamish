@@ -3,6 +3,7 @@
 import os
 import requests
 import psycopg2
+import psycopg2.extras
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -73,43 +74,46 @@ def merge_and_upsert(weather_data, aqi_data):
         }
 
     fetched_at = datetime.now()
-    inserted = 0
+    batch = []
 
     for i, time_str in enumerate(w_hourly["time"]):
         forecast_time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M")
         aqi = aqi_lookup.get(time_str, {})
 
-        cursor.execute(
+        batch.append((
+            forecast_time, fetched_at,
+            w_hourly["temperature_2m"][i],
+            w_hourly["apparent_temperature"][i],
+            w_hourly["wind_speed_10m"][i],
+            w_hourly["wind_direction_10m"][i],
+            w_hourly["precipitation_probability"][i],
+            w_hourly["cloud_cover"][i],
+            w_hourly["uv_index"][i],
+            w_hourly["shortwave_radiation"][i],
+            aqi.get("us_aqi"),
+            aqi.get("pm25"),
+        ))
+
+    if batch:
+        psycopg2.extras.execute_values(
+            cursor,
             """
             INSERT INTO weather_forecast (
                 forecast_time, fetched_at,
                 temperature_f, feels_like_f, wind_speed_mph, wind_direction_deg,
                 precip_probability, cloud_cover, uv_index, solar_radiation_w,
                 us_aqi, pm25
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES %s
             ON CONFLICT (forecast_time, fetched_at) DO NOTHING;
             """,
-            (
-                forecast_time,
-                fetched_at,
-                w_hourly["temperature_2m"][i],
-                w_hourly["apparent_temperature"][i],
-                w_hourly["wind_speed_10m"][i],
-                w_hourly["wind_direction_10m"][i],
-                w_hourly["precipitation_probability"][i],
-                w_hourly["cloud_cover"][i],
-                w_hourly["uv_index"][i],
-                w_hourly["shortwave_radiation"][i],
-                aqi.get("us_aqi"),
-                aqi.get("pm25"),
-            )
+            batch,
+            page_size=200
         )
-        inserted += 1
 
     conn.commit()
     cursor.close()
     conn.close()
-    return inserted
+    return len(batch)
 
 
 if __name__ == "__main__":

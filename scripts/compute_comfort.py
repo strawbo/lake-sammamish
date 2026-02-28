@@ -19,6 +19,7 @@ Hard overrides:
 import os
 import json
 import psycopg2
+import psycopg2.extras
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -218,11 +219,11 @@ if __name__ == "__main__":
     forecast_rows = get_forecast_hours(cursor)
     print(f"Got {len(forecast_rows)} forecast hours")
 
-    computed = 0
+    now = datetime.now()
+    batch = []
     for row in forecast_rows:
         forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index = row
 
-        # Convert DB numerics to float
         feels_like_f = float(feels_like_f) if feels_like_f else None
         wind_mph = float(wind_mph) if wind_mph else None
         solar_w = float(solar_w) if solar_w else None
@@ -247,16 +248,27 @@ if __name__ == "__main__":
             "uv_index": uv_index,
         }
 
-        cursor.execute(
+        batch.append((
+            forecast_time, now, overall, label,
+            round(scores["water_temp"], 1), round(scores["air_temp"], 1),
+            round(scores["wind"], 1), round(scores["sun"], 1),
+            round(scores["rain"], 1), round(scores["clarity"], 1),
+            round(scores["algae"], 1), round(scores["aqi"], 1),
+            override, json.dumps(snapshot),
+        ))
+
+    if batch:
+        psycopg2.extras.execute_values(
+            cursor,
             """
             INSERT INTO comfort_score (
                 score_time, computed_at, overall_score, label,
                 water_temp_score, air_temp_score, wind_score, sun_score,
                 rain_score, clarity_score, algae_score, aqi_score,
                 override_reason, input_snapshot
-            ) VALUES (%s, NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ) VALUES %s
             ON CONFLICT (score_time)
-            DO UPDATE SET computed_at = NOW(),
+            DO UPDATE SET computed_at = EXCLUDED.computed_at,
                           overall_score = EXCLUDED.overall_score,
                           label = EXCLUDED.label,
                           water_temp_score = EXCLUDED.water_temp_score,
@@ -270,18 +282,11 @@ if __name__ == "__main__":
                           override_reason = EXCLUDED.override_reason,
                           input_snapshot = EXCLUDED.input_snapshot;
             """,
-            (
-                forecast_time, overall, label,
-                round(scores["water_temp"], 1), round(scores["air_temp"], 1),
-                round(scores["wind"], 1), round(scores["sun"], 1),
-                round(scores["rain"], 1), round(scores["clarity"], 1),
-                round(scores["algae"], 1), round(scores["aqi"], 1),
-                override, json.dumps(snapshot),
-            )
+            batch,
+            page_size=200
         )
-        computed += 1
 
     conn.commit()
     cursor.close()
     conn.close()
-    print(f"Computed and saved {computed} comfort scores.")
+    print(f"Computed and saved {len(batch)} comfort scores.")
