@@ -71,6 +71,33 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    // Plugin: vertical line at the current time
+    function nowLinePlugin() {
+        return {
+            id: "nowLine",
+            afterDraw: (chart) => {
+                const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+                if (!x) return;
+                const now = new Date();
+                const xPos = x.getPixelForValue(now.getTime());
+                if (xPos < chart.chartArea.left || xPos > chart.chartArea.right) return;
+                ctx.save();
+                ctx.strokeStyle = "rgba(41,128,185,0.5)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(xPos, top);
+                ctx.lineTo(xPos, bottom);
+                ctx.stroke();
+                ctx.fillStyle = "rgba(41,128,185,0.7)";
+                ctx.font = "10px sans-serif";
+                const h = now.getHours() % 12 || 12;
+                const ampm = now.getHours() >= 12 ? "PM" : "AM";
+                ctx.fillText(h + " " + ampm, xPos + 3, top + 11);
+                ctx.restore();
+            }
+        };
+    }
+
     // Format a Date for tooltip title: "Today 3 PM", "Mon 10 AM", etc.
     function tooltipTitle(items) {
         if (!items.length) return "";
@@ -558,7 +585,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             },
-            plugins: [daylightPlugin(), crosshairPlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
+            plugins: [daylightPlugin(), crosshairPlugin(), nowLinePlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
         });
     }
 
@@ -630,7 +657,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             },
-            plugins: [daylightPlugin(), crosshairPlugin()].concat(cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : [])
+            plugins: [daylightPlugin(), crosshairPlugin(), nowLinePlugin()].concat(cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : [])
         });
     }
 
