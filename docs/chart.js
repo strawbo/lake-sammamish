@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let activeChart = null;
     let activePillKey = null;
+    let heroComfort = null; // today's peak hour comfort data
 
     // Approximate sunset hour for Lake Sammamish by month (Pacific time)
     function getSunsetHour(month) {
@@ -220,6 +221,19 @@ document.addEventListener("DOMContentLoaded", function () {
         return `Buoy data is ${days} days old (updated ${formatRelativeTime(stale.time)})`;
     }
 
+    // --- Find peak comfort hour within usable daytime window ---
+    function findPeakHour(rows, month) {
+        const DAWN = 7;
+        const sunset = getSunsetHour(month);
+        let best = null;
+        for (const row of rows) {
+            const h = new Date(row.score_time).getHours();
+            if (h < DAWN || h >= Math.floor(sunset)) continue;
+            if (!best || row.overall_score > best.overall_score) best = row;
+        }
+        return best || rows[0]; // fallback to first row if no daytime hours
+    }
+
     // --- Comfort Score Hero ---
     function renderComfortHero() {
         const ring = document.getElementById("scoreRing");
@@ -227,19 +241,40 @@ document.addEventListener("DOMContentLoaded", function () {
         const label = document.getElementById("comfortLabel");
         const override = document.getElementById("comfortOverride");
 
-        if (!currentComfort || currentComfort.length === 0) {
+        if (!comfortForecast || comfortForecast.length === 0) {
             num.textContent = "--";
             label.textContent = "No data";
             return;
         }
 
-        const c = currentComfort[0];
+        // Find today's rows from comfortForecast
+        const now = new Date();
+        const todayStr = now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now.getDate()).padStart(2, "0");
+        const todayRows = comfortForecast.filter(r => r.score_time.startsWith(todayStr));
+
+        // Use today's peak daytime hour, or nearest hour if no today rows
+        const c = todayRows.length > 0
+            ? findPeakHour(todayRows, now.getMonth())
+            : (currentComfort && currentComfort.length > 0 ? currentComfort[0] : comfortForecast[0]);
+        heroComfort = c;
+
+        const peakTime = new Date(c.score_time);
+        const peakHour = peakTime.getHours();
+        const ampm = peakHour >= 12 ? "PM" : "AM";
+        const h12 = peakHour % 12 || 12;
+
         num.textContent = Math.round(c.overall_score);
         label.textContent = c.label;
         ring.className = "comfort-score-ring " + c.label.toLowerCase();
 
         const explanation = document.getElementById("comfortExplanation");
-        if (explanation) explanation.textContent = getScoreExplanation(c);
+        if (explanation) {
+            const explainText = getScoreExplanation(c);
+            const peakNote = `Best at ${h12} ${ampm}`;
+            explanation.textContent = explainText ? `${peakNote} \u2014 ${explainText}` : peakNote;
+        }
 
         if (c.override_reason) override.textContent = c.override_reason;
 
@@ -337,8 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
             subtitle.textContent = getWaterSubtitle();
             renderWaterTempChart();
         } else if (key === "clarity") {
-            const c = currentComfort && currentComfort[0];
-            const snap = c ? (c.input_snapshot || {}) : {};
+            const snap = heroComfort ? (heroComfort.input_snapshot || {}) : {};
             const ntu = snap.turbidity_ntu;
             if (ntu != null) {
                 subtitle.textContent = `Current turbidity: ${ntu} NTU` + (ntu < 2 ? " (clear)" : ntu < 5 ? " (slightly murky)" : " (murky)");
@@ -366,7 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- Score breakdown bar chart ---
     function renderBreakdownChart() {
-        const c = currentComfort && currentComfort[0];
+        const c = heroComfort;
         if (!c) return;
 
         const components = [
@@ -453,8 +487,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Water temp subtitle with year-over-year comparison ---
     function getWaterSubtitle() {
         // Compare current water temp to historical average for this date
-        const c = currentComfort && currentComfort[0];
-        const currentTemp = c ? (c.input_snapshot || {}).water_temp_f : null;
+        const currentTemp = heroComfort ? (heroComfort.input_snapshot || {}).water_temp_f : null;
 
         const now = new Date();
         const todayPacificStr = new Intl.DateTimeFormat("en-US", {
@@ -627,27 +660,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         container.innerHTML = days.map(dateKey => {
             const g = byDate[dateKey];
-            let bestIdx = -1;
-            for (let i = 0; i < g.hours.length; i++) {
-                if (g.hours[i] >= 11 && g.hours[i] <= 14) {
-                    if (bestIdx === -1 || Math.abs(g.hours[i] - 12) < Math.abs(g.hours[bestIdx] - 12))
-                        bestIdx = i;
-                }
-            }
-
-            let score, labelText, bestRow;
-            if (bestIdx >= 0) {
-                score = Math.round(g.scores[bestIdx]); labelText = g.labels[bestIdx]; bestRow = g.rows[bestIdx];
-            } else {
-                score = Math.round(g.scores.reduce((a, b) => a + b, 0) / g.scores.length);
-                labelText = scoreLabel(score); bestRow = g.rows[0];
-            }
+            const d = new Date(dateKey + "T12:00:00");
+            const peak = findPeakHour(g.rows, d.getMonth());
+            const score = Math.round(peak.overall_score);
+            const labelText = peak.label || scoreLabel(score);
+            const bestRow = peak;
 
             const rationale = getShortRationale(bestRow);
-            const d = new Date(dateKey + "T12:00:00");
-            const dayName = dayNames[d.getDay()];
+            const now = new Date();
+            const isToday = d.getFullYear() === now.getFullYear() &&
+                            d.getMonth() === now.getMonth() &&
+                            d.getDate() === now.getDate();
+            const dayName = isToday ? "Today" : dayNames[d.getDay()];
             const dateStr = monthNames[d.getMonth()] + " " + d.getDate();
             const tier = labelText.toLowerCase();
+
+            // Peak time label
+            const peakDt = new Date(peak.score_time);
+            const ph = peakDt.getHours();
+            const peakStr = (ph % 12 || 12) + (ph >= 12 ? "p" : "a");
 
             const temps = g.snapshots.map(s => s.feels_like_f).filter(t => t != null);
             let tempStr = "";
@@ -656,9 +687,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             return `<div class="forecast-card">
-                <div class="forecast-day">${dayName}<br>${dateStr}</div>
+                <div class="forecast-day">${dayName}<br>${isToday ? "" : dateStr}</div>
                 <div class="forecast-score ${tier}">${score}</div>
-                <div class="forecast-label-text">${labelText}</div>
+                <div class="forecast-label-text">${labelText} @ ${peakStr}</div>
                 ${tempStr ? `<div class="forecast-temps">${tempStr}</div>` : ""}
                 ${rationale ? `<div class="forecast-rationale">${rationale}</div>` : ""}
             </div>`;
