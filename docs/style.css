@@ -16,144 +16,204 @@ html, body {
 
 /* Site title */
 .site-title {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 700;
     text-align: center;
     color: #222;
-    margin: 1.5rem 0 0.25rem;
+    margin: 1.25rem 1rem 0.15rem;
 }
 
 .timestamp {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-align: center;
-    color: #999;
-    margin: 0 0 0.5rem;
+    color: #aaa;
+    margin: 0 0 0.25rem;
 }
 
 /* Comfort score hero */
 .comfort-hero {
     text-align: center;
-    padding: 1rem 1rem 0.5rem;
+    padding: 0.75rem 1rem 0.5rem;
 }
 
 .comfort-score-ring {
-    width: 130px;
-    height: 130px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    border: 8px solid #e0e0e0;
+    border: 7px solid #e0e0e0;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 0.6rem;
+    margin: 0 auto 0.5rem;
     transition: border-color 0.3s;
 }
 
 .comfort-number {
-    font-size: 3rem;
+    font-size: 2.8rem;
     font-weight: 700;
     color: #222;
 }
 
 .comfort-label {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #444;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.1rem;
 }
 
 .comfort-explanation {
     font-size: 0.9rem;
     color: #777;
-    margin-bottom: 0.15rem;
-    min-height: 1.3em;
+    margin-bottom: 0.1rem;
+    padding: 0 1rem;
 }
 
 .comfort-override {
     font-size: 0.9rem;
     color: #c0392b;
     font-weight: 500;
-    min-height: 1.3em;
+    padding: 0 1rem;
 }
 
-/* Ring colors by score tier */
+/* Ring colors */
 .comfort-score-ring.excellent { border-color: #27ae60; }
 .comfort-score-ring.good { border-color: #f1c40f; }
 .comfort-score-ring.fair { border-color: #e67e22; }
 .comfort-score-ring.poor { border-color: #e74c3c; }
 .comfort-score-ring.unsafe { border-color: #8e44ad; }
 
-/* Conditions strip */
+/* Conditions strip — pills as toggle buttons */
 .conditions-strip {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    max-width: 600px;
-    margin: 0 auto 1rem;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    max-width: 500px;
+    margin: 0 auto 0.75rem;
 }
 
 .condition-pill {
     background: #fff;
-    border: 1px solid #e0e0e0;
+    border: 1.5px solid #ddd;
     border-radius: 20px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.82rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.85rem;
     color: #444;
     white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.condition-pill:hover {
+    background: #f0f4ff;
+    border-color: #b0c4de;
+}
+
+.condition-pill:active {
+    transform: scale(0.96);
+}
+
+.condition-pill.active {
+    background: #e8f0fe;
+    border-color: #4a90d9;
+    color: #1a5fa8;
+    font-weight: 600;
 }
 
 .condition-pill .pill-label {
     color: #888;
-    margin-right: 0.25rem;
+    margin-right: 0.2rem;
+}
+
+.condition-pill.active .pill-label {
+    color: #5a8fc4;
+}
+
+/* Detail panel (chart shown when a pill is tapped) */
+.detail-panel {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto 1rem;
+    padding: 0 0.75rem;
+}
+
+.detail-panel.visible {
+    display: block;
+}
+
+.detail-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    text-align: center;
+    margin: 0 0 0.5rem;
+}
+
+.detail-chart-wrap {
+    width: 100%;
+    height: 50vh;
+    min-height: 280px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem;
+    box-sizing: border-box;
+}
+
+.detail-chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* Section titles */
 .section-title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #333;
-    margin: 0 0 0.6rem;
+    margin: 0 0 0.5rem;
 }
 
 /* 7-day forecast */
 .forecast-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 0.75rem 2rem;
 }
 
 .forecast-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.35rem;
 }
 
 .forecast-card {
     background: #fff;
     border: 1px solid #e8e8e8;
-    border-radius: 12px;
-    padding: 0.6rem 0.4rem;
+    border-radius: 10px;
+    padding: 0.5rem 0.25rem;
     text-align: center;
     transition: transform 0.15s;
 }
 
 .forecast-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
 }
 
 .forecast-day {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #888;
     font-weight: 500;
+    line-height: 1.3;
 }
 
 .forecast-score {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin: 0.2rem 0;
+    margin: 0.15rem 0;
 }
 
 .forecast-score.excellent { color: #27ae60; }
@@ -163,124 +223,89 @@ html, body {
 .forecast-score.unsafe { color: #8e44ad; }
 
 .forecast-label-text {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     color: #666;
     font-weight: 500;
 }
 
 .forecast-temps {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: #999;
-    margin-top: 0.2rem;
+    margin-top: 0.1rem;
 }
 
 .forecast-rationale {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: #b07040;
-    margin-top: 0.15rem;
-    line-height: 1.3;
+    margin-top: 0.1rem;
+    line-height: 1.2;
 }
 
-/* Year-over-year comparison */
-.comparison-container {
-    max-width: 800px;
-    margin: 0 auto 1rem;
-    padding: 0 1rem;
-    text-align: center;
-}
-
-.comparison-text {
-    font-size: 0.95rem;
-    color: #555;
-    margin: 0;
-}
-
-/* Detail chart toggles */
-.detail-charts {
-    max-width: 800px;
-    margin: 0 auto 2rem;
-    padding: 0 1rem;
-}
-
-.detail-toggle {
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.15s;
-    margin-bottom: 0.5rem;
-}
-
-.detail-toggle:hover {
-    background: #fafafa;
-}
-
-.toggle-label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #333;
-    flex: 1;
-}
-
-.toggle-value {
-    font-size: 0.95rem;
-    color: #007bff;
-    font-weight: 600;
-    margin-right: 0.75rem;
-}
-
-.toggle-arrow {
-    font-size: 0.75rem;
-    color: #999;
-    transition: transform 0.2s;
-}
-
-.toggle-arrow.open {
-    transform: rotate(90deg);
-}
-
-/* Chart container */
-.chart-container {
-    width: 100%;
-    height: 55vh;
-    padding: 1rem;
-    box-sizing: border-box;
-    background: #fff;
-    border-radius: 0 0 12px 12px;
-    border: 1px solid #e0e0e0;
-    border-top: none;
-    margin-top: -0.5rem;
-    margin-bottom: 1rem;
-}
-
-canvas {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
-    height: auto;
-}
-
-/* Mobile adjustments */
+/* Mobile */
 @media (max-width: 600px) {
     .site-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
+        margin: 1rem 0.75rem 0.1rem;
+    }
+    .comfort-hero {
+        padding: 0.5rem 0.75rem 0.25rem;
     }
     .comfort-score-ring {
-        width: 105px;
-        height: 105px;
+        width: 100px;
+        height: 100px;
         border-width: 6px;
     }
     .comfort-number {
-        font-size: 2.4rem;
+        font-size: 2.3rem;
+    }
+    .comfort-label {
+        font-size: 1.05rem;
+    }
+    .comfort-explanation,
+    .comfort-override {
+        font-size: 0.85rem;
+    }
+    .conditions-strip {
+        gap: 0.35rem;
+        padding: 0.4rem 0.5rem;
+    }
+    .condition-pill {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
     }
     .forecast-cards {
-        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.3rem;
     }
-    .chart-container {
-        height: 45vh;
+    .forecast-card {
+        padding: 0.5rem 0.2rem;
+    }
+    .forecast-score {
+        font-size: 1.3rem;
+    }
+    .forecast-day {
+        font-size: 0.65rem;
+    }
+    .forecast-label-text {
+        font-size: 0.6rem;
+    }
+    .forecast-temps {
+        font-size: 0.6rem;
+    }
+    .forecast-rationale {
+        font-size: 0.55rem;
+    }
+    .detail-chart-wrap {
+        height: 40vh;
+        min-height: 240px;
+    }
+    .section-title {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .forecast-cards {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
