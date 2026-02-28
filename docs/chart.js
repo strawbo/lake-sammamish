@@ -3,6 +3,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeChart = null;
     let activePillKey = null;
 
+    // Plugin: draws a horizontal dotted threshold line with a label
+    function thresholdPlugin(value, label, color) {
+        return {
+            id: "threshold_" + value,
+            afterDraw: (chart) => {
+                const { ctx, chartArea: { left, right }, scales: { y } } = chart;
+                const yPos = y.getPixelForValue(value);
+                if (yPos < chart.chartArea.top || yPos > chart.chartArea.bottom) return;
+                ctx.save();
+                ctx.setLineDash([6, 4]);
+                ctx.strokeStyle = color || "rgba(0,0,0,0.25)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(left, yPos);
+                ctx.lineTo(right, yPos);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = color || "rgba(0,0,0,0.35)";
+                ctx.font = "11px sans-serif";
+                ctx.fillText(label, right - ctx.measureText(label).width - 6, yPos - 5);
+                ctx.restore();
+            }
+        };
+    }
+
     // --- Score explanation ---
     function getScoreExplanation(c) {
         const snapshot = c.input_snapshot || {};
@@ -252,7 +277,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     legend: { display: false },
                     tooltip: { callbacks: { label: ti => `${ti.raw.y}\u00B0F` } }
                 }
-            }
+            },
+            plugins: [thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
         });
     }
 
@@ -261,11 +287,16 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!comfortForecast || comfortForecast.length === 0) return;
 
         const fieldMap = {
-            feels_like: { field: "feels_like_f", unit: "\u00B0F", color: "#e67e22", min: 20, max: 120 },
-            wind: { field: "wind_mph", unit: " mph", color: "#3498db", min: 0, max: 40 },
-            rain: { field: "precip_pct", unit: "%", color: "#7f8c8d", min: 0, max: 100 },
-            uv: { field: "uv_index", unit: "", color: "#f39c12", min: 0, max: 12 },
-            aqi: { field: "aqi", unit: "", color: "#9b59b6", min: 0, max: 200 },
+            feels_like: { field: "feels_like_f", unit: "\u00B0F", color: "#e67e22", min: 20, max: 120,
+                threshold: { value: 65, label: "Comfortable 65\u00B0F", color: "rgba(39,174,96,0.4)" } },
+            wind: { field: "wind_mph", unit: " mph", color: "#3498db", min: 0, max: 40,
+                threshold: { value: 12, label: "Uncomfortable 12+ mph", color: "rgba(231,76,60,0.4)" } },
+            rain: { field: "precip_pct", unit: "%", color: "#7f8c8d", min: 0, max: 100,
+                threshold: { value: 50, label: "Likely rain 50%", color: "rgba(231,76,60,0.4)" } },
+            uv: { field: "uv_index", unit: "", color: "#f39c12", min: 0, max: 12,
+                threshold: { value: 6, label: "High UV 6+", color: "rgba(231,76,60,0.4)" } },
+            aqi: { field: "aqi", unit: "", color: "#9b59b6", min: 0, max: 200,
+                threshold: { value: 100, label: "Unhealthy 100+", color: "rgba(231,76,60,0.4)" } },
         };
 
         const cfg = fieldMap[key];
@@ -314,7 +345,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         callbacks: { label: ti => `${ti.raw.y}${cfg.unit}` }
                     }
                 }
-            }
+            },
+            plugins: cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : []
         });
     }
 
