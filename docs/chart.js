@@ -186,14 +186,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const el = document.getElementById("last-updated");
         if (!el) return;
         const meta = (typeof dataMeta !== "undefined" && dataMeta && dataMeta.length) ? dataMeta[0] : null;
-        if (meta) {
-            // Use the most recent timestamp across all sources
-            const candidates = [meta.latest_buoy, meta.latest_comfort, meta.latest_forecast, meta.generated_at].filter(Boolean);
-            const latest = candidates.map(t => new Date(t)).sort((a, b) => b - a)[0];
-            if (latest) {
-                el.innerText = "Updated " + formatRelativeTime(latest);
-                return;
-            }
+        if (meta && meta.generated_at) {
+            el.innerText = "Updated " + formatRelativeTime(new Date(meta.generated_at));
+            return;
         }
         // Fallback to buoy data
         if (dataCurrent && dataCurrent.length > 0) {
