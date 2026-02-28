@@ -97,7 +97,6 @@ html, body {
     flex-wrap: wrap;
     gap: 0.4rem;
     padding: 0.5rem 0.75rem;
-    max-width: 640px;
     margin: 0 auto 0.75rem;
 }
 
@@ -117,7 +116,6 @@ html, body {
 
 .condition-pill:hover {
     background: #f0f4ff;
-    border-color: #b0c4de;
 }
 
 .condition-pill:active {
@@ -126,7 +124,7 @@ html, body {
 
 .condition-pill.active {
     background: #e8f0fe;
-    border-color: #4a90d9;
+    border-color: #4a90d9 !important;
     color: #1a5fa8;
     font-weight: 600;
 }

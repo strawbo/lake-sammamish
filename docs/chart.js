@@ -127,23 +127,29 @@ document.addEventListener("DOMContentLoaded", function () {
         const pills = [];
 
         if (snapshot.water_temp_f != null)
-            pills.push({ key: "water", label: "Water", value: snapshot.water_temp_f + "\u00B0F" });
+            pills.push({ key: "water", label: "Water", value: snapshot.water_temp_f + "\u00B0F", score: c.water_temp_score });
         if (snapshot.feels_like_f != null)
-            pills.push({ key: "feels_like", label: "Feels Like", value: Math.round(snapshot.feels_like_f) + "\u00B0F" });
+            pills.push({ key: "feels_like", label: "Feels Like", value: Math.round(snapshot.feels_like_f) + "\u00B0F", score: c.air_temp_score });
         if (snapshot.wind_mph != null)
-            pills.push({ key: "wind", label: "Wind", value: Math.round(snapshot.wind_mph) + " mph" });
+            pills.push({ key: "wind", label: "Wind", value: Math.round(snapshot.wind_mph) + " mph", score: c.wind_score });
         if (snapshot.precip_pct != null)
-            pills.push({ key: "rain", label: "Rain", value: Math.round(snapshot.precip_pct) + "%" });
+            pills.push({ key: "rain", label: "Rain", value: Math.round(snapshot.precip_pct) + "%", score: c.rain_score });
         if (snapshot.uv_index != null)
-            pills.push({ key: "uv", label: "UV", value: Math.round(snapshot.uv_index) });
+            pills.push({ key: "uv", label: "UV", value: Math.round(snapshot.uv_index), score: c.sun_score });
         if (snapshot.aqi != null)
-            pills.push({ key: "aqi", label: "AQI", value: Math.round(snapshot.aqi) });
+            pills.push({ key: "aqi", label: "AQI", value: Math.round(snapshot.aqi), score: c.aqi_score });
         if (snapshot.turbidity_ntu != null)
-            pills.push({ key: "clarity", label: "Clarity", value: snapshot.turbidity_ntu + " NTU" });
+            pills.push({ key: "clarity", label: "Clarity", value: snapshot.turbidity_ntu + " NTU", score: c.clarity_score });
 
-        strip.innerHTML = pills.map(p =>
-            `<button class="condition-pill" data-key="${p.key}"><span class="pill-label">${p.label}</span>${p.value}</button>`
-        ).join("");
+        strip.innerHTML = pills.map(p => {
+            let border = "";
+            if (p.score != null) {
+                if (p.score >= 70) border = "border-color:#27ae60";
+                else if (p.score >= 40) border = "border-color:#e6a817";
+                else border = "border-color:#e74c3c";
+            }
+            return `<button class="condition-pill" data-key="${p.key}" style="${border}"><span class="pill-label">${p.label}</span>${p.value}</button>`;
+        }).join("");
 
         // Wire up click handlers
         strip.querySelectorAll(".condition-pill").forEach(btn => {
@@ -299,15 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getChartTitle(key) {
-        const titles = {
-            feels_like: "Feels-like temperature \u2014 8-day forecast",
-            wind: "Wind speed \u2014 8-day forecast",
-            rain: "Rain probability \u2014 8-day forecast",
-            uv: "UV index \u2014 8-day forecast",
-            aqi: "Air quality index \u2014 8-day forecast",
-            clarity: "",
-        };
-        return titles[key] || "";
+        return key === "clarity" ? "" : "8-day forecast";
     }
 
     // --- Water temp comparison text ---
