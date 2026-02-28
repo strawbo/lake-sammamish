@@ -64,8 +64,7 @@ SELECT score_time, overall_score, label,
        rain_score, clarity_score, algae_score, aqi_score,
        override_reason, input_snapshot
 FROM comfort_score
-WHERE score_time <= NOW()
-ORDER BY score_time DESC
+ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - NOW())))
 LIMIT 1;
 """
 
