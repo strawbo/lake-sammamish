@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // Format a Date for tooltip title: "Today 3 PM", "Mon 10 AM", etc.
+    // Format a Date for tooltip title: "Yest 3 PM", "Today 3 PM", "Tmrw 10 AM", etc.
     function tooltipTitle(items) {
         if (!items.length) return "";
         const dt = new Date(items[0].raw.x);
@@ -106,14 +106,31 @@ document.addEventListener("DOMContentLoaded", function () {
         const isToday = dt.getFullYear() === now.getFullYear() &&
                         dt.getMonth() === now.getMonth() &&
                         dt.getDate() === now.getDate();
-        const dayLabel = isToday ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
+        let dayLabel;
+        if (isToday) {
+            dayLabel = "Today";
+        } else {
+            const yest = new Date(now); yest.setDate(yest.getDate() - 1);
+            const isYesterday = dt.getFullYear() === yest.getFullYear() &&
+                                dt.getMonth() === yest.getMonth() &&
+                                dt.getDate() === yest.getDate();
+            if (isYesterday) {
+                dayLabel = "Yest";
+            } else {
+                const tmrw = new Date(now); tmrw.setDate(tmrw.getDate() + 1);
+                const isTomorrow = dt.getFullYear() === tmrw.getFullYear() &&
+                                   tmrw.getMonth() === dt.getMonth() &&
+                                   tmrw.getDate() === dt.getDate();
+                dayLabel = isTomorrow ? "Tmrw" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
+            }
+        }
         const hour = dt.getHours();
         const ampm = hour >= 12 ? "PM" : "AM";
         const h = hour % 12 || 12;
         return `${dayLabel} ${h} ${ampm}`;
     }
 
-    // X-axis tick callback: "Yest", "Today", "Mon", "Tue", etc.
+    // X-axis tick callback: "Yest", "Today", "Tmrw", "Mon", "Tue", etc.
     function dayOfWeekTick(value, index, ticks) {
         const dt = new Date(value);
         const now = new Date();
@@ -126,6 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             dt.getMonth() === yest.getMonth() &&
                             dt.getDate() === yest.getDate();
         if (isYesterday) return "Yest";
+        const tmrw = new Date(now); tmrw.setDate(tmrw.getDate() + 1);
+        const isTomorrow = dt.getFullYear() === tmrw.getFullYear() &&
+                           dt.getMonth() === tmrw.getMonth() &&
+                           dt.getDate() === tmrw.getDate();
+        if (isTomorrow) return "Tmrw";
         return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
     }
 
@@ -513,7 +535,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getChartTitle(key) {
-        return key === "clarity" ? "" : "8-day forecast";
+        return key === "clarity" ? "" : "10-day forecast";
     }
 
     // --- Water temp subtitle with year-over-year comparison ---
@@ -686,7 +708,12 @@ document.addEventListener("DOMContentLoaded", function () {
             byDate[dateKey].hours.push(dt.getHours());
         });
 
-        const days = Object.keys(byDate).sort().slice(0, 8);
+        // Filter to today onward for cards (yesterday is only for detail chart context)
+        const now2 = new Date();
+        const todayKey = now2.getFullYear() + "-" +
+            String(now2.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now2.getDate()).padStart(2, "0");
+        const days = Object.keys(byDate).sort().filter(d => d >= todayKey).slice(0, 8);
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -703,7 +730,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const isToday = d.getFullYear() === now.getFullYear() &&
                             d.getMonth() === now.getMonth() &&
                             d.getDate() === now.getDate();
-            const dayName = isToday ? "Today" : dayNames[d.getDay()];
+            const tmrw = new Date(now); tmrw.setDate(tmrw.getDate() + 1);
+            const isTomorrow = d.getFullYear() === tmrw.getFullYear() &&
+                               d.getMonth() === tmrw.getMonth() &&
+                               d.getDate() === tmrw.getDate();
+            const dayName = isToday ? "Today" : isTomorrow ? "Tmrw" : dayNames[d.getDay()];
             const dateStr = monthNames[d.getMonth()] + " " + d.getDate();
             const tier = labelText.toLowerCase();
 
