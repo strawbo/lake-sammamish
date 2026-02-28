@@ -1,0 +1,55 @@
+name: Backfill Missing Lake Data
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:  # Manual execution only
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set Up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests psycopg2 python-dotenv beautifulsoup4 sqlalchemy pandas
+
+      - name: Run Backfill (Oct 2025 - Feb 2026)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        working-directory: scripts
+        run: python backfill.py
+
+      - name: Generate HTML
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/generate_html.py
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Pull latest changes
+        run: |
+          git fetch origin main
+          git reset --soft origin/main
+
+      - name: Push updated index.html
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
+          git add docs/index.html
+          git commit -m "Auto-update index.html" || echo "No changes to commit"
+          git push origin main
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
