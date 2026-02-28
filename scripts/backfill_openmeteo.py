@@ -32,9 +32,31 @@ END_DATE = "2025-12-31"
 # AQI data starts around Aug 28, 2022
 AQI_START_DATE = "2022-08-28"
 
+# Chunk sizes (days) — smaller chunks to avoid timeouts
+WEATHER_CHUNK_DAYS = 90
+AQI_CHUNK_DAYS = 60
+
+MAX_RETRIES = 3
+
+
+def fetch_with_retry(url, params, retries=MAX_RETRIES):
+    """Fetch URL with retry logic for timeouts."""
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, params=params, timeout=120)
+            resp.raise_for_status()
+            return resp.json()
+        except (requests.Timeout, requests.ConnectionError) as e:
+            if attempt < retries - 1:
+                wait = (attempt + 1) * 5
+                print(f"timeout, retrying in {wait}s...", end=" ", flush=True)
+                time.sleep(wait)
+            else:
+                raise
+
 
 def fetch_weather_chunk(start, end):
-    """Fetch historical weather for a date range (max ~1 year recommended)."""
+    """Fetch historical weather for a date range."""
     params = {
         "latitude": LAT,
         "longitude": LON,
@@ -52,9 +74,7 @@ def fetch_weather_chunk(start, end):
         ]),
         "timezone": "America/Los_Angeles",
     }
-    resp = requests.get(ARCHIVE_URL, params=params, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+    return fetch_with_retry(ARCHIVE_URL, params)
 
 
 def fetch_aqi_chunk(start, end):
@@ -67,9 +87,7 @@ def fetch_aqi_chunk(start, end):
         "hourly": "us_aqi,pm2_5,uv_index",
         "timezone": "America/Los_Angeles",
     }
-    resp = requests.get(AQI_URL, params=params, timeout=60)
-    resp.raise_for_status()
-    return resp.json()
+    return fetch_with_retry(AQI_URL, params)
 
 
 if __name__ == "__main__":
@@ -78,7 +96,6 @@ if __name__ == "__main__":
     print("Connected to database")
 
     # --- Backfill weather data into met_data ---
-    # Process one year at a time to keep responses manageable
     start = datetime.strptime(START_DATE, "%Y-%m-%d")
     end_limit = datetime.strptime(END_DATE, "%Y-%m-%d")
     # Don't go past yesterday
@@ -89,7 +106,7 @@ if __name__ == "__main__":
     total_weather = 0
 
     while start < end_limit:
-        chunk_end = min(start + timedelta(days=364), end_limit)
+        chunk_end = min(start + timedelta(days=WEATHER_CHUNK_DAYS - 1), end_limit)
         start_str = start.strftime("%Y-%m-%d")
         end_str = chunk_end.strftime("%Y-%m-%d")
 
@@ -102,14 +119,12 @@ if __name__ == "__main__":
             for i, time_str in enumerate(hourly["time"]):
                 dt = datetime.strptime(time_str, "%Y-%m-%dT%H:%M")
                 temp_c = hourly["temperature_2m"][i]
-                wind_ms = hourly["wind_speed_10m"][i]
+                wind_kmh = hourly["wind_speed_10m"][i]
                 solar_w = hourly["shortwave_radiation"][i]
                 humidity = hourly["relative_humidity_2m"][i]
 
-                # Convert units: Open-Meteo gives Celsius by default, wind in km/h
-                # but we requested no unit conversion so temp is C
-                # wind_speed_10m is in km/h by default
-                wind_ms_val = float(wind_ms) / 3.6 if wind_ms is not None else None  # km/h -> m/s
+                # wind_speed_10m default unit is km/h, convert to m/s
+                wind_ms_val = float(wind_kmh) / 3.6 if wind_kmh is not None else None
 
                 batch.append((
                     dt,
@@ -150,7 +165,7 @@ if __name__ == "__main__":
             print(f"ERROR: {e}")
 
         start = chunk_end + timedelta(days=1)
-        time.sleep(1)  # Rate limit
+        time.sleep(2)  # Rate limit
 
     print(f"Weather backfill: {total_weather} total rows")
 
@@ -163,7 +178,7 @@ if __name__ == "__main__":
     total_aqi = 0
 
     while aqi_start < end_limit:
-        chunk_end = min(aqi_start + timedelta(days=89), end_limit)  # ~3 months at a time
+        chunk_end = min(aqi_start + timedelta(days=AQI_CHUNK_DAYS - 1), end_limit)
         start_str = aqi_start.strftime("%Y-%m-%d")
         end_str = chunk_end.strftime("%Y-%m-%d")
 
@@ -215,7 +230,7 @@ if __name__ == "__main__":
             print(f"ERROR: {e}")
 
         aqi_start = chunk_end + timedelta(days=1)
-        time.sleep(1)
+        time.sleep(2)
 
     print(f"AQI backfill: {total_aqi} total rows")
 
