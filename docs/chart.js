@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const DAWN = 7; // 7 AM
 
                 ctx.save();
-                ctx.fillStyle = "rgba(0,0,0,0.03)";
+                ctx.fillStyle = "rgba(0,0,0,0.07)";
 
                 // Walk each day in the chart range
                 const startDay = new Date(x.min); startDay.setHours(0, 0, 0, 0);
@@ -46,6 +46,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.restore();
             }
         };
+    }
+
+    // Plugin: draws a vertical crosshair line at the hovered x position
+    function crosshairPlugin() {
+        return {
+            id: "crosshair",
+            afterDraw: (chart) => {
+                if (!chart.tooltip || !chart.tooltip.caretX) return;
+                const { ctx, chartArea: { top, bottom } } = chart;
+                const x = chart.tooltip.caretX;
+                ctx.save();
+                ctx.setLineDash([3, 3]);
+                ctx.strokeStyle = "rgba(0,0,0,0.15)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, top);
+                ctx.lineTo(x, bottom);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.restore();
+            }
+        };
+    }
+
+    // Format a Date for tooltip title: "Today 3 PM", "Mon 10 AM", etc.
+    function tooltipTitle(items) {
+        if (!items.length) return "";
+        const dt = new Date(items[0].raw.x);
+        const now = new Date();
+        const isToday = dt.getFullYear() === now.getFullYear() &&
+                        dt.getMonth() === now.getMonth() &&
+                        dt.getDate() === now.getDate();
+        const dayLabel = isToday ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
+        const hour = dt.getHours();
+        const ampm = hour >= 12 ? "PM" : "AM";
+        const h = hour % 12 || 12;
+        return `${dayLabel} ${h} ${ampm}`;
     }
 
     // X-axis tick callback: "Today", "Mon", "Tue", etc.
@@ -424,10 +461,11 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
                 scales: {
                     x: {
                         type: "time",
-                        time: { unit: "day", tooltipFormat: "EEE, MMM d ha" },
+                        time: { unit: "day" },
                         ticks: { font: { size: 12 }, callback: dayOfWeekTick },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
@@ -439,10 +477,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: ti => `${ti.raw.y}\u00B0F` } }
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitle,
+                            label: ti => `${ti.raw.y}\u00B0F`
+                        }
+                    }
                 }
             },
-            plugins: [daylightPlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
+            plugins: [daylightPlugin(), crosshairPlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
         });
     }
 
@@ -490,10 +533,11 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
                 scales: {
                     x: {
                         type: "time",
-                        time: { unit: "day", tooltipFormat: "EEE, MMM d ha" },
+                        time: { unit: "day" },
                         ticks: { font: { size: 12 }, callback: dayOfWeekTick },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
@@ -506,11 +550,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        callbacks: { label: ti => `${ti.raw.y}${cfg.unit}` }
+                        callbacks: {
+                            title: tooltipTitle,
+                            label: ti => `${ti.raw.y}${cfg.unit}`
+                        }
                     }
                 }
             },
-            plugins: [daylightPlugin()].concat(cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : [])
+            plugins: [daylightPlugin(), crosshairPlugin()].concat(cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : [])
         });
     }
 
