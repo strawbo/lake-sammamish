@@ -1,0 +1,28 @@
+name: Backfill Historical Data
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 psycopg2-binary python-dotenv
+
+      - name: Backfill King County buoy data (2021-2025)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/backfill_buoy.py
+
+      - name: Backfill Open-Meteo historical weather (2021-2025)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/backfill_openmeteo.py
