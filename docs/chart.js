@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getChartTitle(key) {
-        return key === "clarity" ? "" : "10-day forecast";
+        return key === "clarity" ? "" : "8-day forecast";
     }
 
     // --- Water temp subtitle with year-over-year comparison ---
