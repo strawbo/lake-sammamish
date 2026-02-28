@@ -166,22 +166,63 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- Timestamp ---
-    function renderTimestamp() {
-        const el = document.getElementById("last-updated");
-        if (!el || !dataCurrent || dataCurrent.length === 0) return;
-        const latestEntry = dataCurrent[dataCurrent.length - 1];
-        const ts = new Date(latestEntry.date);
+    function formatRelativeTime(ts) {
         const now = new Date();
         const isToday = ts.getFullYear() === now.getFullYear() &&
                         ts.getMonth() === now.getMonth() &&
                         ts.getDate() === now.getDate();
         const timeStr = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).format(ts);
-        if (isToday) {
-            el.innerText = "Updated today, " + timeStr;
-        } else {
-            const dateStr = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(ts);
-            el.innerText = "Updated " + dateStr + ", " + timeStr;
+        if (isToday) return "today, " + timeStr;
+        const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+        const isYesterday = ts.getFullYear() === yesterday.getFullYear() &&
+                            ts.getMonth() === yesterday.getMonth() &&
+                            ts.getDate() === yesterday.getDate();
+        if (isYesterday) return "yesterday, " + timeStr;
+        const dateStr = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(ts);
+        return dateStr + ", " + timeStr;
+    }
+
+    function renderTimestamp() {
+        const el = document.getElementById("last-updated");
+        if (!el) return;
+        const meta = (typeof dataMeta !== "undefined" && dataMeta && dataMeta.length) ? dataMeta[0] : null;
+        if (meta) {
+            // Use the most recent timestamp across all sources
+            const candidates = [meta.latest_buoy, meta.latest_comfort, meta.latest_forecast, meta.generated_at].filter(Boolean);
+            const latest = candidates.map(t => new Date(t)).sort((a, b) => b - a)[0];
+            if (latest) {
+                el.innerText = "Updated " + formatRelativeTime(latest);
+                return;
+            }
         }
+        // Fallback to buoy data
+        if (dataCurrent && dataCurrent.length > 0) {
+            const ts = new Date(dataCurrent[dataCurrent.length - 1].date);
+            el.innerText = "Updated " + formatRelativeTime(ts);
+        }
+    }
+
+    // --- Staleness helpers ---
+    function getBuoyStaleness() {
+        const meta = (typeof dataMeta !== "undefined" && dataMeta && dataMeta.length) ? dataMeta[0] : null;
+        if (!meta || !meta.latest_buoy) return null;
+        const buoyTime = new Date(meta.latest_buoy);
+        const now = new Date();
+        const hoursAgo = (now - buoyTime) / (1000 * 60 * 60);
+        if (hoursAgo < 12) return null; // fresh enough
+        return { hoursAgo: Math.round(hoursAgo), time: buoyTime };
+    }
+
+    function getStalenessText(key) {
+        // Only buoy-dependent pills show staleness
+        const buoyKeys = ["water", "clarity"];
+        if (!buoyKeys.includes(key)) return "";
+        const stale = getBuoyStaleness();
+        if (!stale) return "";
+        const ago = stale.hoursAgo;
+        if (ago < 48) return `Buoy data is ${ago} hours old (updated ${formatRelativeTime(stale.time)})`;
+        const days = Math.round(ago / 24);
+        return `Buoy data is ${days} days old (updated ${formatRelativeTime(stale.time)})`;
     }
 
     // --- Comfort Score Hero ---
@@ -283,6 +324,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         activePillKey = key;
         panel.classList.add("visible");
+
+        // Show staleness warning if applicable
+        const stalenessEl = document.getElementById("detailStaleness");
+        if (stalenessEl) stalenessEl.textContent = getStalenessText(key);
 
         // Destroy previous chart and ensure chart area is visible
         if (activeChart) { activeChart.destroy(); activeChart = null; }

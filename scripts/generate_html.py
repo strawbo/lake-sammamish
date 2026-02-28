@@ -68,7 +68,17 @@ ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - NOW())))
 LIMIT 1;
 """
 
+# Query data freshness metadata
+query_meta = """
+SELECT
+    (SELECT MAX(date) FROM lake_data WHERE depth_m < 1.5 AND temperature_c IS NOT NULL) AS latest_buoy,
+    (SELECT MAX(computed_at) FROM comfort_score) AS latest_comfort,
+    (SELECT MAX(fetched_at) FROM weather_forecast) AS latest_forecast,
+    NOW() AS generated_at;
+"""
+
 # Load data into Pandas
+df_meta = pd.read_sql(query_meta, conn)
 df_current = pd.read_sql(query_current, conn)
 df_past = pd.read_sql(query_past, conn)
 
@@ -89,6 +99,9 @@ past_json = df_past.to_json(orient="records", date_format="iso")
 comfort_json = df_comfort.to_json(orient="records", date_format="iso")
 current_comfort_json = df_current_comfort.to_json(orient="records", date_format="iso")
 
+# Meta data to JSON
+meta_json = df_meta.to_json(orient="records", date_format="iso")
+
 # Read the HTML template
 with open("templates/template.html", "r", encoding="utf-8") as file:
     html_template = file.read()
@@ -100,6 +113,7 @@ html_output = (
     .replace("{{DATA_PAST}}", past_json)
     .replace("{{COMFORT_FORECAST}}", comfort_json)
     .replace("{{CURRENT_COMFORT}}", current_comfort_json)
+    .replace("{{DATA_META}}", meta_json)
 )
 
 # Ensure output directory exists
