@@ -105,6 +105,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (c.override_reason) override.textContent = c.override_reason;
 
+        // Make the score ring clickable to show breakdown
+        ring.style.cursor = "pointer";
+        ring.addEventListener("click", function () {
+            if (activePillKey === "breakdown") {
+                closeDetailPanel();
+            } else {
+                openDetailPanel("breakdown");
+            }
+        });
+
         renderConditions(c);
     }
 
@@ -155,8 +165,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update active pill styling
         document.querySelectorAll(".condition-pill").forEach(el => el.classList.remove("active"));
-        const btn = document.querySelector(`.condition-pill[data-key="${key}"]`);
-        if (btn) btn.classList.add("active");
+        document.getElementById("scoreRing").classList.remove("ring-active");
+        if (key === "breakdown") {
+            document.getElementById("scoreRing").classList.add("ring-active");
+        } else {
+            const btn = document.querySelector(`.condition-pill[data-key="${key}"]`);
+            if (btn) btn.classList.add("active");
+        }
 
         activePillKey = key;
         panel.classList.add("visible");
@@ -167,7 +182,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (wrap) wrap.style.display = "";
 
         // Render the appropriate chart
-        if (key === "water") {
+        if (key === "breakdown") {
+            subtitle.textContent = "Score breakdown";
+            renderBreakdownChart();
+        } else if (key === "water") {
             subtitle.textContent = getWaterComparisonText();
             renderWaterTempChart();
         } else if (key === "clarity") {
@@ -193,8 +211,91 @@ document.addEventListener("DOMContentLoaded", function () {
         const panel = document.getElementById("detailPanel");
         panel.classList.remove("visible");
         document.querySelectorAll(".condition-pill").forEach(el => el.classList.remove("active"));
+        document.getElementById("scoreRing").classList.remove("ring-active");
         activePillKey = null;
         if (activeChart) { activeChart.destroy(); activeChart = null; }
+    }
+
+    // --- Score breakdown bar chart ---
+    function renderBreakdownChart() {
+        const c = currentComfort && currentComfort[0];
+        if (!c) return;
+
+        const components = [
+            { label: "Water Temp (30%)",  score: c.water_temp_score, weight: 0.30, color: "#2980b9" },
+            { label: "Air Temp (20%)",    score: c.air_temp_score,   weight: 0.20, color: "#e67e22" },
+            { label: "Wind (15%)",        score: c.wind_score,       weight: 0.15, color: "#3498db" },
+            { label: "Sun (10%)",         score: c.sun_score,        weight: 0.10, color: "#f1c40f" },
+            { label: "Rain (10%)",        score: c.rain_score,       weight: 0.10, color: "#7f8c8d" },
+            { label: "Clarity (5%)",      score: c.clarity_score,    weight: 0.05, color: "#1abc9c" },
+            { label: "Algae (2.5%)",      score: c.algae_score,      weight: 0.025, color: "#27ae60" },
+            { label: "Air Quality (2.5%)",score: c.aqi_score,        weight: 0.025, color: "#9b59b6" },
+        ].filter(d => d.score != null);
+
+        const labels = components.map(d => d.label);
+        const scores = components.map(d => Math.round(d.score));
+        const weighted = components.map(d => Math.round(d.score * d.weight));
+        const colors = components.map(d => d.color);
+
+        const canvas = document.getElementById("detailChart");
+        activeChart = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Score (0-100)",
+                    data: scores,
+                    backgroundColor: colors.map(c => c + "cc"),
+                    borderColor: colors,
+                    borderWidth: 1.5,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        min: 0, max: 100,
+                        ticks: { font: { size: 12 } },
+                        grid: { color: "rgba(0,0,0,0.05)" },
+                        title: { display: true, text: "Component score", font: { size: 12 } }
+                    },
+                    y: {
+                        ticks: { font: { size: 13 } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: (ti) => {
+                                const d = components[ti.dataIndex];
+                                return `Weighted contribution: ${(d.score * d.weight).toFixed(1)} of ${Math.round(d.weight * 100)} pts`;
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: "vline50",
+                afterDraw: (chart) => {
+                    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+                    const xPos = x.getPixelForValue(50);
+                    ctx.save();
+                    ctx.setLineDash([6, 4]);
+                    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(xPos, top);
+                    ctx.lineTo(xPos, bottom);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.restore();
+                }
+            }]
+        });
     }
 
     function getChartTitle(key) {
@@ -228,14 +329,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (todayTemp != null && pastAvg != null) {
             const diff = (todayTemp - pastAvg).toFixed(1);
-            let text = `Water is ${todayTemp}\u00B0F today`;
-            if (diff > 0) text += ` \u2014 ${diff}\u00B0F warmer than the ${pastTemps.length}-year average`;
-            else if (diff < 0) text += ` \u2014 ${Math.abs(diff)}\u00B0F colder than the ${pastTemps.length}-year average`;
-            else text += ` \u2014 right at the ${pastTemps.length}-year average`;
-            return text;
+            if (diff > 0) return `${diff}\u00B0F warmer than the ${pastTemps.length}-year average`;
+            if (diff < 0) return `${Math.abs(diff)}\u00B0F colder than the ${pastTemps.length}-year average`;
+            return `Right at the ${pastTemps.length}-year average`;
         }
-        if (todayTemp != null) return `Water is ${todayTemp}\u00B0F today`;
-        return "Recent water temperature readings";
+        return "Last 7 days";
     }
 
     // --- Water temperature chart (recent readings) ---

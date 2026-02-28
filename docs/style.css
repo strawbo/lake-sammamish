@@ -82,6 +82,14 @@ html, body {
 .comfort-score-ring.poor { border-color: #e74c3c; }
 .comfort-score-ring.unsafe { border-color: #8e44ad; }
 
+.comfort-score-ring:hover {
+    box-shadow: 0 0 0 4px rgba(74, 144, 217, 0.15);
+}
+
+.comfort-score-ring.ring-active {
+    box-shadow: 0 0 0 4px rgba(74, 144, 217, 0.3);
+}
+
 /* Conditions strip — pills as toggle buttons */
 .conditions-strip {
     display: flex;
