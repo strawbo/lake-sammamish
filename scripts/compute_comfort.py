@@ -197,13 +197,47 @@ def get_forecast_hours(cursor):
     cursor.execute("""
         SELECT DISTINCT ON (forecast_time)
             forecast_time, feels_like_f, wind_speed_mph, solar_radiation_w,
-            precip_probability, us_aqi, uv_index
+            precip_probability, us_aqi, uv_index, temperature_f
         FROM weather_forecast
         WHERE forecast_time >= NOW()
           AND forecast_time < NOW() + INTERVAL '8 days'
         ORDER BY forecast_time, fetched_at DESC;
     """)
     return cursor.fetchall()
+
+
+def project_water_temps(buoy_temp_f, forecast_rows):
+    """Simple energy-balance model to project surface water temperature.
+
+    Lake Sammamish has high thermal mass so temp changes slowly.
+    Each hour, nudge water temp toward an equilibrium driven by air temp
+    and solar radiation.
+
+    Returns a list of projected water temps (°F), one per forecast row.
+    """
+    if buoy_temp_f is None:
+        return [None] * len(forecast_rows)
+
+    # Tuning constants (empirically reasonable for a large PNW lake)
+    DECAY_RATE = 0.006   # fraction of gap closed per hour toward air-driven equilibrium
+    SOLAR_GAIN = 0.0008  # °F per hour per W/m² of solar radiation
+
+    water_f = buoy_temp_f
+    projected = []
+    for row in forecast_rows:
+        air_f = float(row[7]) if row[7] else buoy_temp_f  # temperature_f
+        solar_w = float(row[3]) if row[3] else 0
+
+        # Equilibrium: air temp slightly damped (water doesn't fully track air)
+        equilibrium = air_f * 0.7 + water_f * 0.3
+        # Nudge toward equilibrium
+        water_f += (equilibrium - water_f) * DECAY_RATE
+        # Solar heating bonus
+        water_f += solar_w * SOLAR_GAIN
+
+        projected.append(round(water_f, 1))
+
+    return projected
 
 
 if __name__ == "__main__":
@@ -219,10 +253,14 @@ if __name__ == "__main__":
     forecast_rows = get_forecast_hours(cursor)
     print(f"Got {len(forecast_rows)} forecast hours")
 
+    # Project water temperature forward using energy balance model
+    water_temps = project_water_temps(buoy["water_temp_f"], forecast_rows)
+    print(f"Projected water temps: {water_temps[0]}F -> {water_temps[-1]}F" if water_temps and water_temps[0] else "No water temp projection")
+
     now = datetime.now()
     batch = []
-    for row in forecast_rows:
-        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index = row
+    for i, row in enumerate(forecast_rows):
+        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index, air_temp_f = row
 
         feels_like_f = float(feels_like_f) if feels_like_f else None
         wind_mph = float(wind_mph) if wind_mph else None
@@ -231,13 +269,15 @@ if __name__ == "__main__":
         aqi_val = float(aqi_val) if aqi_val else None
         uv_index = float(uv_index) if uv_index else None
 
+        projected_water_f = water_temps[i]
+
         overall, label, scores, override = compute_score(
-            buoy["water_temp_f"], feels_like_f, wind_mph, solar_w, precip_pct,
+            projected_water_f, feels_like_f, wind_mph, solar_w, precip_pct,
             buoy["turbidity_ntu"], buoy["phycocyanin_ugl"], aqi_val
         )
 
         snapshot = {
-            "water_temp_f": buoy["water_temp_f"],
+            "water_temp_f": projected_water_f,
             "feels_like_f": feels_like_f,
             "wind_mph": wind_mph,
             "solar_w": solar_w,

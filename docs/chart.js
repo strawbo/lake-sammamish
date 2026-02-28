@@ -43,27 +43,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (x4 > x3) ctx.fillRect(x3, top, x4 - x3, bottom - top);
                 }
 
-                // Draw "Today" marker
-                const now = new Date();
-                const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-                const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
-                const tl = Math.max(x.getPixelForValue(todayStart.getTime()), left);
-                const tr = Math.min(x.getPixelForValue(todayEnd.getTime()), right);
-                if (tr > tl && tl < right && tr > left) {
-                    // Light blue highlight for today
-                    ctx.fillStyle = "rgba(74,144,217,0.06)";
-                    ctx.fillRect(tl, top, tr - tl, bottom - top);
-                    // "Today" label at top center
-                    ctx.fillStyle = "rgba(74,144,217,0.5)";
-                    ctx.font = "11px sans-serif";
-                    const lbl = "Today";
-                    const mid = (tl + tr) / 2;
-                    ctx.fillText(lbl, mid - ctx.measureText(lbl).width / 2, top + 13);
-                }
-
                 ctx.restore();
             }
         };
+    }
+
+    // X-axis tick callback: "Today", "Mon", "Tue", etc.
+    function dayOfWeekTick(value, index, ticks) {
+        const dt = new Date(value);
+        const now = new Date();
+        const isToday = dt.getFullYear() === now.getFullYear() &&
+                        dt.getMonth() === now.getMonth() &&
+                        dt.getDate() === now.getDate();
+        if (isToday) return "Today";
+        return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
     }
 
     // Plugin: draws a horizontal dotted threshold line with a label
@@ -264,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
             subtitle.textContent = "Score breakdown";
             renderBreakdownChart();
         } else if (key === "water") {
-            subtitle.textContent = getWaterComparisonText();
+            subtitle.textContent = getWaterSubtitle();
             renderWaterTempChart();
         } else if (key === "clarity") {
             const c = currentComfort && currentComfort[0];
@@ -380,40 +373,43 @@ document.addEventListener("DOMContentLoaded", function () {
         return key === "clarity" ? "" : "8-day forecast";
     }
 
-    // --- Water temp comparison text ---
-    function getWaterComparisonText() {
+    // --- Water temp subtitle with year-over-year comparison ---
+    function getWaterSubtitle() {
+        // Compare current water temp to historical average for this date
+        const c = currentComfort && currentComfort[0];
+        const currentTemp = c ? (c.input_snapshot || {}).water_temp_f : null;
+
         const now = new Date();
         const todayPacificStr = new Intl.DateTimeFormat("en-US", {
             timeZone: "America/Los_Angeles",
             year: "numeric", month: "2-digit", day: "2-digit"
         }).format(now);
         const [month, day, year] = todayPacificStr.split("/");
-        const todayStr = `${year}-${month}-${day}`;
-        const todayTempEntry = dataCurrent.find(e => e.date.startsWith(todayStr));
-        const todayTemp = todayTempEntry ? todayTempEntry.max_temperature_f : null;
-        const todayMD = todayStr.slice(5);
+        const todayMD = `${month}-${day}`;
         const pastTemps = dataPast.filter(e => e.date.slice(5, 10) === todayMD);
         const pastAvg = pastTemps.length
             ? (pastTemps.reduce((s, e) => s + Number(e.max_temperature_f), 0) / pastTemps.length).toFixed(1)
             : null;
 
-        if (todayTemp != null && pastAvg != null) {
-            const diff = (todayTemp - pastAvg).toFixed(1);
+        if (currentTemp != null && pastAvg != null) {
+            const diff = (currentTemp - pastAvg).toFixed(1);
             if (diff > 0) return `${diff}\u00B0F warmer than the ${pastTemps.length}-year average`;
             if (diff < 0) return `${Math.abs(diff)}\u00B0F colder than the ${pastTemps.length}-year average`;
             return `Right at the ${pastTemps.length}-year average`;
         }
-        return "Last 7 days";
+        return "Projected water temperature";
     }
 
-    // --- Water temperature chart (recent readings) ---
+    // --- Water temperature forecast chart ---
     function renderWaterTempChart() {
-        // Show last 7 days of data
-        const now = new Date();
-        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
-        const data = dataCurrent
-            .map(r => ({ x: new Date(r.date), y: r.max_temperature_f }))
-            .filter(d => d.x >= weekAgo);
+        if (!comfortForecast || comfortForecast.length === 0) return;
+        const data = comfortForecast
+            .map(r => {
+                const snap = r.input_snapshot || {};
+                return snap.water_temp_f != null ? { x: new Date(r.score_time), y: snap.water_temp_f } : null;
+            })
+            .filter(Boolean);
+        if (data.length === 0) return;
         const canvas = document.getElementById("detailChart");
         activeChart = new Chart(canvas, {
             type: "line",
@@ -431,8 +427,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 scales: {
                     x: {
                         type: "time",
-                        time: { unit: "day", tooltipFormat: "MMM d, ha", displayFormats: { day: "MMM d" } },
-                        ticks: { font: { size: 12 } },
+                        time: { unit: "day", tooltipFormat: "EEE, MMM d ha" },
+                        ticks: { font: { size: 12 }, callback: dayOfWeekTick },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
@@ -497,8 +493,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 scales: {
                     x: {
                         type: "time",
-                        time: { unit: "day", tooltipFormat: "MMM d, ha", displayFormats: { day: "MMM d", hour: "ha" } },
-                        ticks: { font: { size: 12 } },
+                        time: { unit: "day", tooltipFormat: "EEE, MMM d ha" },
+                        ticks: { font: { size: 12 }, callback: dayOfWeekTick },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
