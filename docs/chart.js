@@ -49,6 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (snapshot.precip_pct != null) {
             pills.push({ label: "Rain", value: Math.round(snapshot.precip_pct) + "%" });
         }
+        if (snapshot.uv_index != null) {
+            pills.push({ label: "UV", value: Math.round(snapshot.uv_index) });
+        }
         if (snapshot.aqi != null) {
             pills.push({ label: "AQI", value: Math.round(snapshot.aqi) });
         }

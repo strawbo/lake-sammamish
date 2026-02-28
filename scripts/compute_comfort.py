@@ -196,7 +196,7 @@ def get_forecast_hours(cursor):
     cursor.execute("""
         SELECT DISTINCT ON (forecast_time)
             forecast_time, feels_like_f, wind_speed_mph, solar_radiation_w,
-            precip_probability, us_aqi
+            precip_probability, us_aqi, uv_index
         FROM weather_forecast
         WHERE forecast_time >= NOW()
           AND forecast_time < NOW() + INTERVAL '7 days'
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     computed = 0
     for row in forecast_rows:
-        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val = row
+        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index = row
 
         # Convert DB numerics to float
         feels_like_f = float(feels_like_f) if feels_like_f else None
@@ -228,6 +228,7 @@ if __name__ == "__main__":
         solar_w = float(solar_w) if solar_w else None
         precip_pct = float(precip_pct) if precip_pct else None
         aqi_val = float(aqi_val) if aqi_val else None
+        uv_index = float(uv_index) if uv_index else None
 
         overall, label, scores, override = compute_score(
             buoy["water_temp_f"], feels_like_f, wind_mph, solar_w, precip_pct,
@@ -243,6 +244,7 @@ if __name__ == "__main__":
             "turbidity_ntu": buoy["turbidity_ntu"],
             "phycocyanin_ugl": buoy["phycocyanin_ugl"],
             "aqi": aqi_val,
+            "uv_index": uv_index,
         }
 
         cursor.execute(
