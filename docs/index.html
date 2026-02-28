@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lake Sammamish Swimming Comfort</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,24 +23,16 @@
 
     <div class="conditions-strip" id="conditionsStrip"></div>
 
+    <div class="detail-panel" id="detailPanel">
+        <p class="detail-subtitle" id="detailSubtitle"></p>
+        <div class="detail-chart-wrap" id="detailChartWrap">
+            <canvas id="detailChart"></canvas>
+        </div>
+    </div>
+
     <div class="forecast-container">
         <h2 class="section-title">7-Day Forecast</h2>
         <div class="forecast-cards" id="forecastCards"></div>
-    </div>
-
-    <div class="comparison-container" id="comparisonContainer">
-        <p class="comparison-text" id="comparisonText"></p>
-    </div>
-
-    <div class="detail-charts">
-        <div class="detail-toggle" id="toggleWaterTemp">
-            <span class="toggle-label">Water Temperature</span>
-            <span class="toggle-value" id="waterTempValue"></span>
-            <span class="toggle-arrow" id="waterTempArrow">&#9654;</span>
-        </div>
-        <div class="chart-container" id="waterTempChart" style="display:none;">
-            <canvas id="lakeChart"></canvas>
-        </div>
     </div>
 
     <script>
