@@ -1,5 +1,56 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    // --- Score explanation ---
+    function getScoreExplanation(c) {
+        const snapshot = c.input_snapshot || {};
+        // Build list of factors with their component score and a human description
+        const factors = [];
+
+        if (c.water_temp_score != null) {
+            const val = snapshot.water_temp_f != null ? Math.round(snapshot.water_temp_f) + "\u00B0F water" : "cold water";
+            factors.push({ score: c.water_temp_score, text: val });
+        }
+        if (c.air_temp_score != null) {
+            const val = snapshot.feels_like_f != null ? Math.round(snapshot.feels_like_f) + "\u00B0F air" : "cold air";
+            factors.push({ score: c.air_temp_score, text: val });
+        }
+        if (c.wind_score != null) {
+            const val = snapshot.wind_mph != null ? Math.round(snapshot.wind_mph) + " mph wind" : "high wind";
+            factors.push({ score: c.wind_score, text: val });
+        }
+        if (c.sun_score != null) {
+            factors.push({ score: c.sun_score, text: "low sun" });
+        }
+        if (c.rain_score != null) {
+            const val = snapshot.precip_pct != null ? Math.round(snapshot.precip_pct) + "% rain chance" : "rain likely";
+            factors.push({ score: c.rain_score, text: val });
+        }
+        if (c.clarity_score != null && c.clarity_score < 60) {
+            factors.push({ score: c.clarity_score, text: "murky water" });
+        }
+        if (c.algae_score != null && c.algae_score < 60) {
+            factors.push({ score: c.algae_score, text: "algae concern" });
+        }
+        if (c.aqi_score != null && c.aqi_score < 60) {
+            factors.push({ score: c.aqi_score, text: "poor air quality" });
+        }
+
+        // Only mention factors scoring below 50 (significant detractors)
+        const weak = factors.filter(f => f.score < 50).sort((a, b) => a.score - b.score);
+
+        if (weak.length === 0) {
+            if (c.overall_score >= 80) return "Great conditions for swimming!";
+            // Mild detractors — grab the two lowest
+            const mild = factors.filter(f => f.score < 70).sort((a, b) => a.score - b.score);
+            if (mild.length > 0) return "Held back by " + mild.slice(0, 2).map(f => f.text).join(" and ");
+            return "";
+        }
+
+        // Take the top 2-3 worst factors
+        const top = weak.slice(0, 3);
+        return "Mainly due to " + top.map(f => f.text).join(", ");
+    }
+
     // --- Comfort Score Hero ---
     function renderComfortHero() {
         const hero = document.getElementById("comfortHero");
@@ -21,6 +72,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Set ring color class
         ring.className = "comfort-score-ring " + c.label.toLowerCase();
+
+        // Explanation of major detractors
+        const explanation = document.getElementById("comfortExplanation");
+        if (explanation) {
+            explanation.textContent = getScoreExplanation(c);
+        }
 
         if (c.override_reason) {
             override.textContent = c.override_reason;

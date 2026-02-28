@@ -75,6 +75,13 @@ p {
     margin-bottom: 0.25rem;
 }
 
+.comfort-explanation {
+    font-size: 0.95rem;
+    color: #777;
+    margin-bottom: 0.25rem;
+    min-height: 1.4em;
+}
+
 .comfort-override {
     font-size: 0.95rem;
     color: #c0392b;
