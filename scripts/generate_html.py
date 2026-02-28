@@ -71,10 +71,10 @@ LIMIT 1;
 # Query data freshness metadata
 query_meta = """
 SELECT
-    (SELECT MAX(date) FROM lake_data WHERE depth_m < 1.5 AND temperature_c IS NOT NULL) AS latest_buoy,
-    (SELECT MAX(computed_at) FROM comfort_score) AS latest_comfort,
-    (SELECT MAX(fetched_at) FROM weather_forecast) AS latest_forecast,
-    NOW() AS generated_at;
+    (SELECT MAX(date) AT TIME ZONE 'America/Los_Angeles' FROM lake_data WHERE depth_m < 1.5 AND temperature_c IS NOT NULL) AS latest_buoy,
+    (SELECT MAX(computed_at) AT TIME ZONE 'America/Los_Angeles' FROM comfort_score) AS latest_comfort,
+    (SELECT MAX(fetched_at) AT TIME ZONE 'America/Los_Angeles' FROM weather_forecast) AS latest_forecast,
+    NOW() AT TIME ZONE 'America/Los_Angeles' AS generated_at;
 """
 
 # Load data into Pandas
