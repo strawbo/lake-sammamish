@@ -16,7 +16,7 @@ html, body {
 
 /* Site title */
 .site-title {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
     text-align: center;
     color: #222;
@@ -24,7 +24,7 @@ html, body {
 }
 
 .timestamp {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     text-align: center;
     color: #aaa;
     margin: 0 0 0.25rem;
@@ -55,21 +55,21 @@ html, body {
 }
 
 .comfort-label {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     font-weight: 600;
     color: #444;
     margin-bottom: 0.1rem;
 }
 
 .comfort-explanation {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #777;
     margin-bottom: 0.1rem;
     padding: 0 1rem;
 }
 
 .comfort-override {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #c0392b;
     font-weight: 500;
     padding: 0 1rem;
@@ -89,7 +89,7 @@ html, body {
     flex-wrap: wrap;
     gap: 0.4rem;
     padding: 0.5rem 0.75rem;
-    max-width: 500px;
+    max-width: 640px;
     margin: 0 auto 0.75rem;
 }
 
@@ -97,8 +97,8 @@ html, body {
     background: #fff;
     border: 1.5px solid #ddd;
     border-radius: 20px;
-    padding: 0.4rem 0.85rem;
-    font-size: 0.85rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
     color: #444;
     white-space: nowrap;
     cursor: pointer;
@@ -145,7 +145,7 @@ html, body {
 }
 
 .detail-subtitle {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #666;
     text-align: center;
     margin: 0 0 0.5rem;
@@ -170,7 +170,7 @@ html, body {
 
 /* Section titles */
 .section-title {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #333;
     margin: 0 0 0.5rem;
@@ -204,7 +204,7 @@ html, body {
 }
 
 .forecast-day {
-    font-size: 0.7rem;
+    font-size: 0.78rem;
     color: #888;
     font-weight: 500;
     line-height: 1.3;
@@ -223,19 +223,19 @@ html, body {
 .forecast-score.unsafe { color: #8e44ad; }
 
 .forecast-label-text {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: #666;
     font-weight: 500;
 }
 
 .forecast-temps {
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: #999;
     margin-top: 0.1rem;
 }
 
 .forecast-rationale {
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     color: #b07040;
     margin-top: 0.1rem;
     line-height: 1.2;
@@ -244,7 +244,7 @@ html, body {
 /* Mobile */
 @media (max-width: 600px) {
     .site-title {
-        font-size: 1.25rem;
+        font-size: 1.35rem;
         margin: 1rem 0.75rem 0.1rem;
     }
     .comfort-hero {
@@ -259,19 +259,19 @@ html, body {
         font-size: 2.3rem;
     }
     .comfort-label {
-        font-size: 1.05rem;
+        font-size: 1.15rem;
     }
     .comfort-explanation,
     .comfort-override {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
     .conditions-strip {
         gap: 0.35rem;
         padding: 0.4rem 0.5rem;
     }
     .condition-pill {
-        padding: 0.35rem 0.7rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
     }
     .forecast-cards {
         grid-template-columns: repeat(4, 1fr);
@@ -284,23 +284,23 @@ html, body {
         font-size: 1.3rem;
     }
     .forecast-day {
-        font-size: 0.65rem;
+        font-size: 0.72rem;
     }
     .forecast-label-text {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
     }
     .forecast-temps {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
     }
     .forecast-rationale {
-        font-size: 0.55rem;
+        font-size: 0.6rem;
     }
     .detail-chart-wrap {
         height: 40vh;
         min-height: 240px;
     }
     .section-title {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 }
 

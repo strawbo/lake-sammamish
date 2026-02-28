@@ -20,8 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 ctx.lineTo(right, yPos);
                 ctx.stroke();
                 ctx.setLineDash([]);
-                ctx.fillStyle = color || "rgba(0,0,0,0.35)";
-                ctx.font = "11px sans-serif";
+                ctx.fillStyle = color ? color.replace(/[\d.]+\)$/, "0.85)") : "rgba(0,0,0,0.6)";
+                ctx.font = "12px sans-serif";
                 ctx.fillText(label, right - ctx.measureText(label).width - 6, yPos - 5);
                 ctx.restore();
             }
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const c = currentComfort[0];
         num.textContent = Math.round(c.overall_score);
-        label.textContent = "Swimming Comfort: " + c.label;
+        label.textContent = c.label;
         ring.className = "comfort-score-ring " + c.label.toLowerCase();
 
         const explanation = document.getElementById("comfortExplanation");
@@ -264,12 +264,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     x: {
                         type: "time",
                         time: { unit: "day", tooltipFormat: "MMM d, ha", displayFormats: { day: "MMM d" } },
-                        ticks: { font: { size: 11 } },
+                        ticks: { font: { size: 12 } },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
                         min: 40, max: 90,
-                        ticks: { font: { size: 11 }, callback: v => v + "\u00B0F" },
+                        ticks: { font: { size: 12 }, callback: v => v + "\u00B0F" },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     }
                 },
@@ -330,12 +330,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     x: {
                         type: "time",
                         time: { unit: "day", tooltipFormat: "MMM d, ha", displayFormats: { day: "MMM d", hour: "ha" } },
-                        ticks: { font: { size: 11 } },
+                        ticks: { font: { size: 12 } },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
                         min: cfg.min, max: cfg.max,
-                        ticks: { font: { size: 11 } },
+                        ticks: { font: { size: 12 } },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     }
                 },
