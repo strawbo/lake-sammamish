@@ -136,13 +136,28 @@ document.addEventListener("DOMContentLoaded", function () {
         activePillKey = key;
         panel.classList.add("visible");
 
-        // Destroy previous chart
+        // Destroy previous chart and ensure chart area is visible
         if (activeChart) { activeChart.destroy(); activeChart = null; }
+        const wrap = document.getElementById("detailChartWrap");
+        if (wrap) wrap.style.display = "";
 
         // Render the appropriate chart
         if (key === "water") {
             subtitle.textContent = getWaterComparisonText();
             renderWaterTempChart();
+        } else if (key === "clarity") {
+            const c = currentComfort && currentComfort[0];
+            const snap = c ? (c.input_snapshot || {}) : {};
+            const ntu = snap.turbidity_ntu;
+            if (ntu != null) {
+                subtitle.textContent = `Current turbidity: ${ntu} NTU` + (ntu < 2 ? " (clear)" : ntu < 5 ? " (slightly murky)" : " (murky)");
+            } else {
+                subtitle.textContent = "No turbidity data available";
+            }
+            // No chart for clarity — it's a single buoy reading, not a forecast
+            const wrap = document.getElementById("detailChartWrap");
+            if (wrap) wrap.style.display = "none";
+            return;
         } else {
             subtitle.textContent = getChartTitle(key);
             renderForecastChart(key);
@@ -159,12 +174,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getChartTitle(key) {
         const titles = {
-            feels_like: "Feels-like temperature \u2014 next 7 days",
-            wind: "Wind speed \u2014 next 7 days",
-            rain: "Rain probability \u2014 next 7 days",
-            uv: "UV index \u2014 next 7 days",
-            aqi: "Air quality index \u2014 next 7 days",
-            clarity: "Water clarity (NTU) \u2014 recent readings",
+            feels_like: "Feels-like temperature \u2014 8-day forecast",
+            wind: "Wind speed \u2014 8-day forecast",
+            rain: "Rain probability \u2014 8-day forecast",
+            uv: "UV index \u2014 8-day forecast",
+            aqi: "Air quality index \u2014 8-day forecast",
+            clarity: "",
         };
         return titles[key] || "";
     }
@@ -195,12 +210,17 @@ document.addEventListener("DOMContentLoaded", function () {
             return text;
         }
         if (todayTemp != null) return `Water is ${todayTemp}\u00B0F today`;
-        return "Water temperature vs. prior years";
+        return "Recent water temperature readings";
     }
 
     // --- Water temperature chart (recent readings) ---
     function renderWaterTempChart() {
-        const data = dataCurrent.map(r => ({ x: new Date(r.date), y: r.max_temperature_f }));
+        // Show last 7 days of data
+        const now = new Date();
+        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+        const data = dataCurrent
+            .map(r => ({ x: new Date(r.date), y: r.max_temperature_f }))
+            .filter(d => d.x >= weekAgo);
         const canvas = document.getElementById("detailChart");
         activeChart = new Chart(canvas, {
             type: "line",
@@ -223,6 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
+                        min: 40, max: 90,
                         ticks: { font: { size: 11 }, callback: v => v + "\u00B0F" },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     }
@@ -240,11 +261,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!comfortForecast || comfortForecast.length === 0) return;
 
         const fieldMap = {
-            feels_like: { field: "feels_like_f", unit: "\u00B0F", color: "#e67e22" },
-            wind: { field: "wind_mph", unit: " mph", color: "#3498db" },
-            rain: { field: "precip_pct", unit: "%", color: "#7f8c8d" },
-            uv: { field: "uv_index", unit: "", color: "#f39c12" },
-            aqi: { field: "aqi", unit: "", color: "#9b59b6" },
+            feels_like: { field: "feels_like_f", unit: "\u00B0F", color: "#e67e22", min: 20, max: 120 },
+            wind: { field: "wind_mph", unit: " mph", color: "#3498db", min: 0, max: 40 },
+            rain: { field: "precip_pct", unit: "%", color: "#7f8c8d", min: 0, max: 100 },
+            uv: { field: "uv_index", unit: "", color: "#f39c12", min: 0, max: 12 },
+            aqi: { field: "aqi", unit: "", color: "#9b59b6", min: 0, max: 200 },
         };
 
         const cfg = fieldMap[key];
@@ -282,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         grid: { color: "rgba(0,0,0,0.05)" }
                     },
                     y: {
-                        beginAtZero: key === "rain" || key === "uv" || key === "aqi",
+                        min: cfg.min, max: cfg.max,
                         ticks: { font: { size: 11 } },
                         grid: { color: "rgba(0,0,0,0.05)" }
                     }
