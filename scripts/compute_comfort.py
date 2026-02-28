@@ -193,13 +193,13 @@ def get_latest_buoy_data(cursor):
 
 
 def get_forecast_hours(cursor):
-    """Get the latest forecast for each hour in the next 8 days."""
+    """Get the latest forecast for each hour from yesterday through next 8 days."""
     cursor.execute("""
         SELECT DISTINCT ON (forecast_time)
             forecast_time, feels_like_f, wind_speed_mph, solar_radiation_w,
             precip_probability, us_aqi, uv_index, temperature_f
         FROM weather_forecast
-        WHERE forecast_time >= NOW()
+        WHERE forecast_time >= DATE_TRUNC('day', NOW()) - INTERVAL '1 day'
           AND forecast_time < NOW() + INTERVAL '8 days'
         ORDER BY forecast_time, fetched_at DESC;
     """)
