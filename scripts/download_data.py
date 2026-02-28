@@ -1,27 +1,24 @@
-"""Download Lake Sammamish profile data from King County's lake buoy site.
+"""Download Lake Sammamish profile and meteorological data from King County.
 
-Uses the DataScrape.aspx GET endpoint which returns an HTML table.
-Parses the table and writes a tab-delimited file (SammamishProfile.txt)
-compatible with import_data.py.
+Uses the DataScrape.aspx GET endpoint which returns HTML tables.
+Parses the tables and writes tab-delimited files compatible with import_data.py.
 """
 
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-# King County lake buoy data endpoint (simple GET, no ASP.NET postback needed)
 BASE_URL = "https://green2.kingcounty.gov/lake-buoy/DataScrape.aspx"
 
-# Use current month and year
 now = datetime.now()
 current_year = str(now.year)
 current_month = str(now.month)
 
 
-def fetch_month(year, month):
-    """Fetch profile data for a single month. Returns list of rows (list of strings)."""
+def fetch_month(year, month, data_type="profile"):
+    """Fetch data for a single month. Returns (headers, rows)."""
     params = {
-        "type": "profile",
+        "type": data_type,
         "buoy": "sammamish",
         "year": str(year),
         "month": str(month),
@@ -32,15 +29,13 @@ def fetch_month(year, month):
     soup = BeautifulSoup(resp.text, "html.parser")
     table = soup.find("table")
     if not table:
-        print(f"  No data table found for {year}-{month:02d}")
+        print(f"  No data table found for {data_type} {year}-{month:02d}")
         return [], []
 
-    # Extract headers
     headers = [th.get_text(strip=True) for th in table.find_all("th")]
 
-    # Extract data rows
     rows = []
-    for tr in table.find_all("tr")[1:]:  # skip header row
+    for tr in table.find_all("tr")[1:]:
         cells = [td.get_text(strip=True) for td in tr.find_all("td")]
         if cells and len(cells) == len(headers):
             rows.append(cells)
@@ -57,13 +52,20 @@ def write_tsv(filepath, headers, all_rows):
 
 
 if __name__ == "__main__":
-    print(f"Fetching Lake Sammamish profile data for {current_year}-{int(current_month):02d}...")
-    headers, rows = fetch_month(current_year, current_month)
-
+    # Download profile data
+    print(f"Fetching profile data for {current_year}-{int(current_month):02d}...")
+    headers, rows = fetch_month(current_year, current_month, "profile")
     if rows:
-        output_path = "SammamishProfile.txt"
-        write_tsv(output_path, headers, rows)
-        print(f"Data downloaded and saved as {output_path} successfully.")
-        print(f"  {len(rows)} data rows")
+        write_tsv("SammamishProfile.txt", headers, rows)
+        print(f"  Saved SammamishProfile.txt ({len(rows)} rows)")
     else:
-        print("No data available for the current month.")
+        print("  No profile data available.")
+
+    # Download meteorological data
+    print(f"Fetching met data for {current_year}-{int(current_month):02d}...")
+    headers, rows = fetch_month(current_year, current_month, "met")
+    if rows:
+        write_tsv("SammamishMet.txt", headers, rows)
+        print(f"  Saved SammamishMet.txt ({len(rows)} rows)")
+    else:
+        print("  No met data available.")

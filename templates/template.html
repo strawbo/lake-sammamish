@@ -3,21 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Lake Sammamish Water Temperature</title>
-    <link rel="stylesheet" href="style.css">  <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
+    <div class="comfort-hero" id="comfortHero">
+        <div class="comfort-score-ring" id="scoreRing">
+            <span class="comfort-number" id="comfortNumber">--</span>
+        </div>
+        <div class="comfort-label" id="comfortLabel">Loading...</div>
+        <div class="comfort-override" id="comfortOverride"></div>
+    </div>
+
+    <div class="conditions-strip" id="conditionsStrip"></div>
+
     <h1>Lake Sammamish Water Temperature</h1>
     <h1 id="temp"></h1>
     <h2 id="tempDescription"></h2>
-    <p id="last-updated" class="timestamp"></p> <!-- Placeholder for timestamp -->
+    <p id="last-updated" class="timestamp"></p>
+
+    <div class="forecast-container">
+        <h2 class="section-title">7-Day Swimming Comfort Forecast</h2>
+        <div class="forecast-cards" id="forecastCards"></div>
+    </div>
+
     <div class="chart-container">
         <canvas id="lakeChart"></canvas>
     </div>
+
     <script>
         const dataCurrent = {{DATA_CURRENT}};
         const dataPast = {{DATA_PAST}};
+        const comfortForecast = {{COMFORT_FORECAST}};
+        const currentComfort = {{CURRENT_COMFORT}};
     </script>
     <script src="chart.js"></script>
 </body>

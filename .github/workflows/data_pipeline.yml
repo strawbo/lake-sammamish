@@ -26,6 +26,11 @@ jobs:
       - name: Install Dependencies
         run: pip install requests psycopg2 python-dotenv beautifulsoup4 sqlalchemy pandas
 
+      - name: Run Database Migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/migrate_db.py
+
       - name: Run Data Fetch Script
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -35,6 +40,16 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/import_data.py
+
+      - name: Fetch Weather and AQI Forecast
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/fetch_forecast.py
+
+      - name: Compute Comfort Scores
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/compute_comfort.py
 
       - name: Generate HTML
         env:
@@ -50,7 +65,7 @@ jobs:
         run: |
           git fetch origin main
           git reset --soft origin/main
-      
+
       - name: Push updated index.html
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
