@@ -2,12 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Lake Sammamish Water Temperature</title>
+    <title>Lake Sammamish Swimming Comfort</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
+    <h1 class="site-title">Lake Sammamish Swimming Comfort</h1>
+    <p id="last-updated" class="timestamp"></p>
+
     <div class="comfort-hero" id="comfortHero">
         <div class="comfort-score-ring" id="scoreRing">
             <span class="comfort-number" id="comfortNumber">--</span>
@@ -19,18 +22,24 @@
 
     <div class="conditions-strip" id="conditionsStrip"></div>
 
-    <h1>Lake Sammamish Water Temperature</h1>
-    <h1 id="temp"></h1>
-    <h2 id="tempDescription"></h2>
-    <p id="last-updated" class="timestamp"></p>
-
     <div class="forecast-container">
-        <h2 class="section-title">7-Day Swimming Comfort Forecast</h2>
+        <h2 class="section-title">7-Day Forecast</h2>
         <div class="forecast-cards" id="forecastCards"></div>
     </div>
 
-    <div class="chart-container">
-        <canvas id="lakeChart"></canvas>
+    <div class="comparison-container" id="comparisonContainer">
+        <p class="comparison-text" id="comparisonText"></p>
+    </div>
+
+    <div class="detail-charts">
+        <div class="detail-toggle" id="toggleWaterTemp">
+            <span class="toggle-label">Water Temperature</span>
+            <span class="toggle-value" id="waterTempValue"></span>
+            <span class="toggle-arrow" id="waterTempArrow">&#9654;</span>
+        </div>
+        <div class="chart-container" id="waterTempChart" style="display:none;">
+            <canvas id="lakeChart"></canvas>
+        </div>
     </div>
 
     <script>

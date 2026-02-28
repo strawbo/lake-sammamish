@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Score explanation ---
     function getScoreExplanation(c) {
         const snapshot = c.input_snapshot || {};
-        // Build list of factors with their component score and a human description
         const factors = [];
 
         if (c.water_temp_score != null) {
@@ -35,25 +34,32 @@ document.addEventListener("DOMContentLoaded", function () {
             factors.push({ score: c.aqi_score, text: "poor air quality" });
         }
 
-        // Only mention factors scoring below 50 (significant detractors)
         const weak = factors.filter(f => f.score < 50).sort((a, b) => a.score - b.score);
 
         if (weak.length === 0) {
             if (c.overall_score >= 80) return "Great conditions for swimming!";
-            // Mild detractors — grab the two lowest
             const mild = factors.filter(f => f.score < 70).sort((a, b) => a.score - b.score);
             if (mild.length > 0) return "Held back by " + mild.slice(0, 2).map(f => f.text).join(" and ");
             return "";
         }
 
-        // Take the top 2-3 worst factors
         const top = weak.slice(0, 3);
         return "Mainly due to " + top.map(f => f.text).join(", ");
     }
 
+    // --- Timestamp ---
+    function renderTimestamp() {
+        const el = document.getElementById("last-updated");
+        if (!el || !dataCurrent || dataCurrent.length === 0) return;
+
+        const latestEntry = dataCurrent[dataCurrent.length - 1];
+        const latestTimestamp = new Date(latestEntry.date);
+        const options = { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true };
+        el.innerText = "Updated " + new Intl.DateTimeFormat("en-US", options).format(latestTimestamp);
+    }
+
     // --- Comfort Score Hero ---
     function renderComfortHero() {
-        const hero = document.getElementById("comfortHero");
         const ring = document.getElementById("scoreRing");
         const num = document.getElementById("comfortNumber");
         const label = document.getElementById("comfortLabel");
@@ -69,11 +75,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const score = Math.round(c.overall_score);
         num.textContent = score;
         label.textContent = "Swimming Comfort: " + c.label;
-
-        // Set ring color class
         ring.className = "comfort-score-ring " + c.label.toLowerCase();
 
-        // Explanation of major detractors
         const explanation = document.getElementById("comfortExplanation");
         if (explanation) {
             explanation.textContent = getScoreExplanation(c);
@@ -83,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
             override.textContent = c.override_reason;
         }
 
-        // Render conditions strip
         renderConditions(c);
     }
 
@@ -125,18 +127,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderForecast() {
         const container = document.getElementById("forecastCards");
         if (!container || !comfortForecast || comfortForecast.length === 0) {
-            if (container) container.innerHTML = '<p style="color:#999;text-align:center;">No forecast data available yet.</p>';
+            if (container) container.innerHTML = '<p style="color:#999;text-align:center;font-size:0.9rem;">No forecast data available yet.</p>';
             return;
         }
 
-        // Group by date, take midday (11am-2pm) score or daily average
         const byDate = {};
         comfortForecast.forEach(row => {
             const dt = new Date(row.score_time);
             const dateKey = dt.toISOString().slice(0, 10);
             if (!byDate[dateKey]) {
-                byDate[dateKey] = { scores: [], labels: [], snapshots: [], hours: [] };
+                byDate[dateKey] = { rows: [], scores: [], labels: [], snapshots: [], hours: [] };
             }
+            byDate[dateKey].rows.push(row);
             byDate[dateKey].scores.push(row.overall_score);
             byDate[dateKey].labels.push(row.label);
             byDate[dateKey].snapshots.push(row.input_snapshot || {});
@@ -150,7 +152,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         container.innerHTML = days.map(dateKey => {
             const group = byDate[dateKey];
-            // Prefer midday score (11am-2pm), else average
             let bestIdx = -1;
             for (let i = 0; i < group.hours.length; i++) {
                 if (group.hours[i] >= 11 && group.hours[i] <= 14) {
@@ -160,21 +161,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            let score, labelText;
+            let score, labelText, bestRow;
             if (bestIdx >= 0) {
                 score = Math.round(group.scores[bestIdx]);
                 labelText = group.labels[bestIdx];
+                bestRow = group.rows[bestIdx];
             } else {
                 score = Math.round(group.scores.reduce((a, b) => a + b, 0) / group.scores.length);
                 labelText = scoreLabel(score);
+                bestRow = group.rows[0];
             }
+
+            const rationale = getShortRationale(bestRow);
 
             const d = new Date(dateKey + "T12:00:00");
             const dayName = dayNames[d.getDay()];
             const dateStr = monthNames[d.getMonth()] + " " + d.getDate();
             const tierClass = labelText.toLowerCase();
 
-            // Get high/low temps from snapshots
             const temps = group.snapshots.map(s => s.feels_like_f).filter(t => t != null);
             let tempStr = "";
             if (temps.length > 0) {
@@ -188,6 +192,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="forecast-score ${tierClass}">${score}</div>
                 <div class="forecast-label-text">${labelText}</div>
                 ${tempStr ? `<div class="forecast-temps">${tempStr}</div>` : ""}
+                ${rationale ? `<div class="forecast-rationale">${rationale}</div>` : ""}
             </div>`;
         }).join("");
     }
@@ -200,46 +205,27 @@ document.addEventListener("DOMContentLoaded", function () {
         return "Unsafe";
     }
 
-    // --- Water Temperature Chart (existing) ---
-    function renderTempChart() {
-        const datasets = [
-            {
-                label: "Current Year",
-                data: dataCurrent.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
-                borderColor: "rgba(0, 123, 255, 1)",
-                backgroundColor: "rgba(0, 123, 255, 0.2)",
-                fill: false,
-                borderWidth: 5,
-                pointRadius: 4,
-                tension: 0.2
-            }
-        ];
+    function getShortRationale(row) {
+        // Build a brief 1-2 word reason from the weakest factor
+        const factors = [];
+        if (row.water_temp_score != null) factors.push({ score: row.water_temp_score, text: "Cold water" });
+        if (row.air_temp_score != null) factors.push({ score: row.air_temp_score, text: "Cold air" });
+        if (row.wind_score != null) factors.push({ score: row.wind_score, text: "Windy" });
+        if (row.sun_score != null) factors.push({ score: row.sun_score, text: "Overcast" });
+        if (row.rain_score != null) factors.push({ score: row.rain_score, text: "Rainy" });
+        if (row.clarity_score != null && row.clarity_score < 60) factors.push({ score: row.clarity_score, text: "Murky" });
+        if (row.algae_score != null && row.algae_score < 60) factors.push({ score: row.algae_score, text: "Algae" });
+        if (row.aqi_score != null && row.aqi_score < 60) factors.push({ score: row.aqi_score, text: "Bad air" });
 
-        const years = Array.from(new Set(dataPast.map(row => row.pYear)));
-        years.sort((a, b) => b - a);
-        years.forEach((year, index) => {
-            const filteredData = dataPast.filter(item => item.pYear === year);
-            let grayValue = Math.round((index / (years.length - 1)) * 200);
-            let color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
-            datasets.push({
-                label: `${year}`,
-                data: filteredData.map(row => {
-                    let pastDate = new Date(row.date);
-                    pastDate.setFullYear(new Date().getFullYear());
-                    return { x: pastDate, y: row.max_temperature_f };
-                }),
-                borderColor: color,
-                borderWidth: 1,
-                borderDash: [6, 3],
-                pointRadius: 3,
-                fill: false,
-                tension: 0.2
-            });
-        });
+        const weak = factors.filter(f => f.score < 50).sort((a, b) => a.score - b.score);
+        if (weak.length === 0) return "";
+        return weak.slice(0, 2).map(f => f.text).join(", ");
+    }
 
-        const headerTemp = document.getElementById("temp");
-        const chartTitle = document.getElementById("tempDescription");
-        if (!headerTemp || !chartTitle) return;
+    // --- Year-over-year comparison ---
+    function renderComparison() {
+        const el = document.getElementById("comparisonText");
+        if (!el) return;
 
         const now = new Date();
         const todayPacificStr = new Intl.DateTimeFormat("en-US", {
@@ -257,24 +243,82 @@ document.addEventListener("DOMContentLoaded", function () {
             ? (pastTempsForToday.reduce((sum, entry) => sum + Number(entry.max_temperature_f), 0) / pastTempsForToday.length).toFixed(1)
             : null;
 
-        let comparisonText = "";
         if (todayTemp !== null && pastAvgTemp !== null) {
             const tempDiff = (todayTemp - pastAvgTemp).toFixed(1);
-            if (tempDiff > 0) comparisonText = `${tempDiff}\u00B0F warmer than usual`;
-            else if (tempDiff < 0) comparisonText = `${Math.abs(tempDiff)}\u00B0F colder than usual`;
-            else comparisonText = `About average temperature`;
+            let text = `Water is ${todayTemp}\u00B0F today`;
+            if (tempDiff > 0) text += ` \u2014 ${tempDiff}\u00B0F warmer than the ${pastTempsForToday.length}-year average`;
+            else if (tempDiff < 0) text += ` \u2014 ${Math.abs(tempDiff)}\u00B0F colder than the ${pastTempsForToday.length}-year average`;
+            else text += ` \u2014 right at the ${pastTempsForToday.length}-year average`;
+            el.textContent = text;
+        } else if (todayTemp !== null) {
+            el.textContent = `Water is ${todayTemp}\u00B0F today`;
+        }
+    }
+
+    // --- Expandable water temp chart ---
+    let waterTempChartRendered = false;
+
+    function setupToggles() {
+        const toggle = document.getElementById("toggleWaterTemp");
+        const chartEl = document.getElementById("waterTempChart");
+        const arrow = document.getElementById("waterTempArrow");
+        const valueEl = document.getElementById("waterTempValue");
+
+        // Show current temp in the toggle bar
+        if (valueEl && dataCurrent && dataCurrent.length > 0) {
+            const latest = dataCurrent[dataCurrent.length - 1];
+            valueEl.textContent = latest.max_temperature_f + "\u00B0F";
         }
 
-        function formatTimestamp(date) {
-            const options = { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true };
-            return new Intl.DateTimeFormat("en-US", options).format(date);
-        }
+        if (toggle && chartEl) {
+            toggle.addEventListener("click", function () {
+                const isHidden = chartEl.style.display === "none";
+                chartEl.style.display = isHidden ? "block" : "none";
+                arrow.classList.toggle("open", isHidden);
 
-        const latestEntry = dataCurrent[dataCurrent.length - 1];
-        const latestTimestamp = latestEntry ? new Date(latestEntry.date) : new Date();
-        document.getElementById("last-updated").innerText = `As of ${formatTimestamp(latestTimestamp)}`;
-        headerTemp.innerText = todayTemp ? `${todayTemp}\u00B0F` : "";
-        chartTitle.innerText = comparisonText;
+                if (isHidden && !waterTempChartRendered) {
+                    renderWaterTempChart();
+                    waterTempChartRendered = true;
+                }
+            });
+        }
+    }
+
+    function renderWaterTempChart() {
+        const datasets = [
+            {
+                label: "Current Year",
+                data: dataCurrent.map(row => ({ x: new Date(row.date), y: row.max_temperature_f })),
+                borderColor: "rgba(0, 123, 255, 1)",
+                backgroundColor: "rgba(0, 123, 255, 0.2)",
+                fill: false,
+                borderWidth: 5,
+                pointRadius: 4,
+                tension: 0.2
+            }
+        ];
+
+        const years = Array.from(new Set(dataPast.map(row => row.pYear)));
+        years.sort((a, b) => b - a);
+        years.forEach((year, index) => {
+            const filteredData = dataPast.filter(item => item.pYear === year);
+            let grayValue = Math.round((index / Math.max(years.length - 1, 1)) * 200);
+            let color = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+            datasets.push({
+                label: `${year}`,
+                data: filteredData.map(row => {
+                    let pastDate = new Date(row.date);
+                    pastDate.setFullYear(new Date().getFullYear());
+                    return { x: pastDate, y: row.max_temperature_f };
+                }),
+                borderColor: color,
+                borderWidth: 1,
+                borderDash: [6, 3],
+                pointRadius: 3,
+                fill: false,
+                tension: 0.2
+            });
+        });
 
         const temperatureBands = [
             { min: 40, max: 50, color: "rgba(46, 134, 193, 0.6)", label: "Ice Cold (below 50)" },
@@ -364,7 +408,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Render all sections
+    renderTimestamp();
     renderComfortHero();
     renderForecast();
-    renderTempChart();
+    renderComparison();
+    setupToggles();
 });
