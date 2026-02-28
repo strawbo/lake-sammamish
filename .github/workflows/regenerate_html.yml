@@ -12,17 +12,18 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Set Up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
+          cache: 'pip'
 
       - name: Install Dependencies
-        run: pip install psycopg2 python-dotenv sqlalchemy pandas
+        run: pip install -r requirements.txt
 
       - name: Generate HTML
         env:
