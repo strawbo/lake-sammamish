@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return `${dayLabel} ${h} ${ampm}`;
     }
 
-    // X-axis tick callback: "Today", "Mon", "Tue", etc.
+    // X-axis tick callback: "Yest", "Today", "Mon", "Tue", etc.
     function dayOfWeekTick(value, index, ticks) {
         const dt = new Date(value);
         const now = new Date();
@@ -121,6 +121,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         dt.getMonth() === now.getMonth() &&
                         dt.getDate() === now.getDate();
         if (isToday) return "Today";
+        const yest = new Date(now); yest.setDate(yest.getDate() - 1);
+        const isYesterday = dt.getFullYear() === yest.getFullYear() &&
+                            dt.getMonth() === yest.getMonth() &&
+                            dt.getDate() === yest.getDate();
+        if (isYesterday) return "Yest";
         return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dt.getDay()];
     }
 
@@ -714,7 +719,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             return `<div class="forecast-card">
-                <div class="forecast-day">${dayName}<br>${isToday ? "" : dateStr}</div>
+                <div class="forecast-day">${dayName}<br>${dateStr}</div>
                 <div class="forecast-score ${tier}">${score}</div>
                 <div class="forecast-label-text">${labelText} @ ${peakStr}</div>
                 ${tempStr ? `<div class="forecast-temps">${tempStr}</div>` : ""}
