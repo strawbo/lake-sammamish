@@ -45,15 +45,15 @@ GROUP BY date, EXTRACT(YEAR FROM date)
 ORDER BY date;
 """
 
-# Query comfort scores for the next 8 days
+# Query comfort scores for today + next 8 days (include all of today)
 query_comfort = """
 SELECT score_time, overall_score, label,
        water_temp_score, air_temp_score, wind_score, sun_score,
        rain_score, clarity_score, algae_score, aqi_score,
        override_reason, input_snapshot
 FROM comfort_score
-WHERE score_time >= NOW()
-  AND score_time < NOW() + INTERVAL '8 days'
+WHERE score_time >= DATE_TRUNC('day', NOW())
+  AND score_time < DATE_TRUNC('day', NOW()) + INTERVAL '9 days'
 ORDER BY score_time;
 """
 

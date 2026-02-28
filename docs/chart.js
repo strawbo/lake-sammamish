@@ -3,6 +3,69 @@ document.addEventListener("DOMContentLoaded", function () {
     let activeChart = null;
     let activePillKey = null;
 
+    // Approximate sunset hour for Lake Sammamish by month (Pacific time)
+    function getSunsetHour(month) {
+        //                  Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec
+        const sunsetHours = [17,  17.5, 18.5, 19.5, 20, 21, 21, 20.5, 19.5, 18.5, 17, 16.5];
+        return sunsetHours[month];
+    }
+
+    // Plugin: shades nighttime bands + marks "Today" on time-series charts
+    function daylightPlugin() {
+        return {
+            id: "daylight",
+            beforeDraw: (chart) => {
+                const { ctx, chartArea: { left, right, top, bottom }, scales: { x } } = chart;
+                if (!x || !x.min || !x.max) return;
+                const DAWN = 7; // 7 AM
+
+                ctx.save();
+                ctx.fillStyle = "rgba(0,0,0,0.03)";
+
+                // Walk each day in the chart range
+                const startDay = new Date(x.min); startDay.setHours(0, 0, 0, 0);
+                const endMs = x.max;
+                for (let d = new Date(startDay); d.getTime() <= endMs; d.setDate(d.getDate() + 1)) {
+                    const sunset = getSunsetHour(d.getMonth());
+
+                    // Pre-dawn band: midnight to DAWN
+                    const nightStart = new Date(d); nightStart.setHours(0, 0, 0, 0);
+                    const dawnTime = new Date(d); dawnTime.setHours(DAWN, 0, 0, 0);
+                    const x1 = Math.max(x.getPixelForValue(nightStart.getTime()), left);
+                    const x2 = Math.min(x.getPixelForValue(dawnTime.getTime()), right);
+                    if (x2 > x1) ctx.fillRect(x1, top, x2 - x1, bottom - top);
+
+                    // Post-sunset band: sunset to midnight
+                    const sunsetTime = new Date(d); sunsetTime.setHours(Math.floor(sunset), (sunset % 1) * 60, 0, 0);
+                    const midnight = new Date(d); midnight.setDate(midnight.getDate() + 1); midnight.setHours(0, 0, 0, 0);
+                    const x3 = Math.max(x.getPixelForValue(sunsetTime.getTime()), left);
+                    const x4 = Math.min(x.getPixelForValue(midnight.getTime()), right);
+                    if (x4 > x3) ctx.fillRect(x3, top, x4 - x3, bottom - top);
+                }
+
+                // Draw "Today" marker
+                const now = new Date();
+                const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
+                const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+                const tl = Math.max(x.getPixelForValue(todayStart.getTime()), left);
+                const tr = Math.min(x.getPixelForValue(todayEnd.getTime()), right);
+                if (tr > tl && tl < right && tr > left) {
+                    // Light blue highlight for today
+                    ctx.fillStyle = "rgba(74,144,217,0.06)";
+                    ctx.fillRect(tl, top, tr - tl, bottom - top);
+                    // "Today" label at top center
+                    ctx.fillStyle = "rgba(74,144,217,0.5)";
+                    ctx.font = "11px sans-serif";
+                    const lbl = "Today";
+                    const mid = (tl + tr) / 2;
+                    ctx.fillText(lbl, mid - ctx.measureText(lbl).width / 2, top + 13);
+                }
+
+                ctx.restore();
+            }
+        };
+    }
+
     // Plugin: draws a horizontal dotted threshold line with a label
     function thresholdPlugin(value, label, color) {
         return {
@@ -78,8 +141,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!el || !dataCurrent || dataCurrent.length === 0) return;
         const latestEntry = dataCurrent[dataCurrent.length - 1];
         const ts = new Date(latestEntry.date);
-        const opts = { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: true };
-        el.innerText = "Updated " + new Intl.DateTimeFormat("en-US", opts).format(ts);
+        const now = new Date();
+        const isToday = ts.getFullYear() === now.getFullYear() &&
+                        ts.getMonth() === now.getMonth() &&
+                        ts.getDate() === now.getDate();
+        const timeStr = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).format(ts);
+        if (isToday) {
+            el.innerText = "Updated today, " + timeStr;
+        } else {
+            const dateStr = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(ts);
+            el.innerText = "Updated " + dateStr + ", " + timeStr;
+        }
     }
 
     // --- Comfort Score Hero ---
@@ -374,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     tooltip: { callbacks: { label: ti => `${ti.raw.y}\u00B0F` } }
                 }
             },
-            plugins: [thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
+            plugins: [daylightPlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
         });
     }
 
@@ -442,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             },
-            plugins: cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : []
+            plugins: [daylightPlugin()].concat(cfg.threshold ? [thresholdPlugin(cfg.threshold.value, cfg.threshold.label, cfg.threshold.color)] : [])
         });
     }
 
