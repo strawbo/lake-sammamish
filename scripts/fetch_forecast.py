@@ -18,7 +18,7 @@ AQI_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 
 
 def fetch_weather():
-    """Fetch hourly weather forecast for next 7 days."""
+    """Fetch hourly weather forecast for next 8 days."""
     params = {
         "latitude": LAT,
         "longitude": LON,
@@ -35,7 +35,7 @@ def fetch_weather():
         "temperature_unit": "fahrenheit",
         "wind_speed_unit": "mph",
         "timezone": "America/Los_Angeles",
-        "forecast_days": 7,
+        "forecast_days": 8,
     }
     resp = requests.get(WEATHER_URL, params=params)
     resp.raise_for_status()

@@ -198,83 +198,40 @@ document.addEventListener("DOMContentLoaded", function () {
         return "Water temperature vs. prior years";
     }
 
-    // --- Water temperature chart (year-over-year) ---
+    // --- Water temperature chart (recent readings) ---
     function renderWaterTempChart() {
-        const datasets = [{
-            label: "Current Year",
-            data: dataCurrent.map(r => ({ x: new Date(r.date), y: r.max_temperature_f })),
-            borderColor: "rgba(0, 123, 255, 1)",
-            backgroundColor: "rgba(0, 123, 255, 0.2)",
-            fill: false, borderWidth: 4, pointRadius: 3, tension: 0.2
-        }];
-
-        const years = Array.from(new Set(dataPast.map(r => r.pYear))).sort((a, b) => b - a);
-        years.forEach((yr, i) => {
-            const data = dataPast.filter(r => r.pYear === yr);
-            const g = Math.round((i / Math.max(years.length - 1, 1)) * 180);
-            datasets.push({
-                label: `${yr}`,
-                data: data.map(r => {
-                    const d = new Date(r.date); d.setFullYear(new Date().getFullYear());
-                    return { x: d, y: r.max_temperature_f };
-                }),
-                borderColor: `rgb(${g},${g},${g})`,
-                borderWidth: 1, borderDash: [5, 3], pointRadius: 2, fill: false, tension: 0.2
-            });
-        });
-
-        const bands = [
-            { min: 40, max: 50, color: "rgba(46,134,193,0.5)", label: "Ice Cold" },
-            { min: 50, max: 60, color: "rgba(93,173,226,0.5)", label: "Very Cold" },
-            { min: 60, max: 68, color: "rgba(174,214,241,0.5)", label: "Cold" },
-            { min: 68, max: 75, color: "rgba(250,215,160,0.5)", label: "Tolerable" },
-            { min: 75, max: 80, color: "rgba(245,176,65,0.5)", label: "Pleasant" },
-            { min: 80, max: 90, color: "rgba(231,76,60,0.5)", label: "Excellent" }
-        ];
-
-        const bandsPlugin = {
-            id: "bands",
-            beforeDraw: (chart) => {
-                const { ctx, chartArea: { left, right }, scales: { y } } = chart;
-                const w = chart.canvas.clientWidth;
-                const fs = Math.min(14, Math.max(10, w / 30));
-                ctx.save();
-                bands.forEach(b => {
-                    const top = y.getPixelForValue(b.max);
-                    const bot = y.getPixelForValue(b.min);
-                    ctx.fillStyle = b.color;
-                    ctx.fillRect(left, top, right - left, bot - top);
-                    ctx.fillStyle = "rgba(0,0,0,0.5)";
-                    ctx.font = `${fs}px sans-serif`;
-                    ctx.fillText(b.label, left + 6, (top + bot) / 2 + fs / 3);
-                });
-                ctx.restore();
-            }
-        };
-
+        const data = dataCurrent.map(r => ({ x: new Date(r.date), y: r.max_temperature_f }));
         const canvas = document.getElementById("detailChart");
         activeChart = new Chart(canvas, {
             type: "line",
-            data: { datasets },
+            data: {
+                datasets: [{
+                    label: "Water Temperature",
+                    data: data,
+                    borderColor: "#2980b9",
+                    backgroundColor: "#2980b922",
+                    fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.3
+                }]
+            },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 scales: {
                     x: {
                         type: "time",
-                        time: { unit: "day", tooltipFormat: "MMM d", displayFormats: { day: "MMM d" } },
+                        time: { unit: "day", tooltipFormat: "MMM d, ha", displayFormats: { day: "MMM d" } },
                         ticks: { font: { size: 11 } },
-                        grid: { display: false },
-                        min: new Date(new Date().setDate(new Date().getDate() - 7)),
-                        max: new Date(new Date().setDate(new Date().getDate() + 7))
+                        grid: { color: "rgba(0,0,0,0.05)" }
                     },
-                    y: { suggestedMin: 40, suggestedMax: 90, ticks: { display: false }, grid: { display: false } }
+                    y: {
+                        ticks: { font: { size: 11 }, callback: v => v + "\u00B0F" },
+                        grid: { color: "rgba(0,0,0,0.05)" }
+                    }
                 },
                 plugins: {
-                    legend: { position: "top", labels: { usePointStyle: true, font: { size: 11 }, boxWidth: 8, padding: 12 } },
-                    tooltip: { callbacks: { label: ti => `${ti.dataset.label}: ${ti.raw.y}\u00B0F` } }
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ti => `${ti.raw.y}\u00B0F` } }
                 }
-            },
-            plugins: [bandsPlugin]
+            }
         });
     }
 
@@ -360,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
             byDate[dateKey].hours.push(dt.getHours());
         });
 
-        const days = Object.keys(byDate).sort().slice(0, 7);
+        const days = Object.keys(byDate).sort().slice(0, 8);
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
