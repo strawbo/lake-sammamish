@@ -68,6 +68,30 @@ ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - NOW())))
 LIMIT 1;
 """
 
+# Query historical weather averages for this time of year (±7 day window around today's DOY)
+# Used to show "historical average" lines on the detail charts
+query_hist_weather = """
+SELECT
+    ROUND(CAST(AVG(max_air_c) * 9.0/5.0 + 32 AS NUMERIC), 1) AS avg_feels_like_f,
+    ROUND(CAST(AVG(avg_wind_ms) * 2.237 AS NUMERIC), 1) AS avg_wind_mph,
+    ROUND(CAST(AVG(max_solar_w) AS NUMERIC), 0) AS avg_solar_w,
+    ROUND(CAST(AVG(total_precip_mm) * 15 AS NUMERIC), 0) AS avg_rain_pct,
+    ROUND(CAST(AVG(avg_aqi) AS NUMERIC), 0) AS avg_aqi
+FROM (
+    SELECT date::date AS day,
+           MAX(air_temperature_c) AS max_air_c,
+           AVG(wind_speed_ms) AS avg_wind_ms,
+           MAX(solar_radiation_w) AS max_solar_w,
+           SUM(precipitation_mm) AS total_precip_mm,
+           AVG(us_aqi) AS avg_aqi
+    FROM met_data
+    WHERE air_temperature_c IS NOT NULL
+      AND EXTRACT(YEAR FROM date) < EXTRACT(YEAR FROM NOW())
+      AND ABS(EXTRACT(DOY FROM date) - EXTRACT(DOY FROM NOW())) <= 7
+    GROUP BY date::date
+) daily;
+"""
+
 # Query data freshness metadata
 query_meta = """
 SELECT
@@ -83,6 +107,9 @@ df_past = pd.read_sql(query_past, conn)
 # Comfort score data
 df_comfort = pd.read_sql(query_comfort, conn)
 df_current_comfort = pd.read_sql(query_current_comfort, conn)
+
+# Historical weather averages
+df_hist_weather = pd.read_sql(query_hist_weather, conn)
 
 # Close the database connection
 conn.close()
@@ -100,6 +127,9 @@ current_comfort_json = df_current_comfort.to_json(orient="records", date_format=
 # Meta data to JSON
 meta_json = df_meta.to_json(orient="records", date_format="iso")
 
+# Historical weather averages to JSON
+hist_weather_json = df_hist_weather.to_json(orient="records", date_format="iso")
+
 # Read the HTML template
 with open("templates/template.html", "r", encoding="utf-8") as file:
     html_template = file.read()
@@ -112,6 +142,7 @@ html_output = (
     .replace("{{COMFORT_FORECAST}}", comfort_json)
     .replace("{{CURRENT_COMFORT}}", current_comfort_json)
     .replace("{{DATA_META}}", meta_json)
+    .replace("{{HIST_WEATHER}}", hist_weather_json)
 )
 
 # Ensure output directory exists

@@ -438,7 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (wrap) wrap.style.display = "none";
             return;
         } else {
-            subtitle.textContent = getChartTitle(key);
+            subtitle.textContent = getDetailSubtitle(key);
             renderForecastChart(key);
         }
     }
@@ -538,6 +538,29 @@ document.addEventListener("DOMContentLoaded", function () {
         return key === "clarity" ? "" : "8-day forecast";
     }
 
+    function getDetailSubtitle(key) {
+        const histAvg = getHistAvg(key);
+        if (histAvg == null || !heroComfort) return getChartTitle(key);
+        const snap = heroComfort.input_snapshot || {};
+        const labels = {
+            feels_like: { field: "feels_like_f", unit: "\u00B0F", name: "" },
+            wind: { field: "wind_mph", unit: " mph", name: "" },
+            rain: { field: "precip_pct", unit: "%", name: "" },
+            aqi: { field: "aqi", unit: " AQI", name: "" },
+        };
+        const cfg = labels[key];
+        if (!cfg) return getChartTitle(key);
+        const current = snap[cfg.field];
+        if (current == null) return getChartTitle(key);
+        const diff = Number(current) - histAvg;
+        if (key === "feels_like") {
+            if (diff > 0.5) return `${diff.toFixed(1)}\u00B0F warmer than seasonal avg`;
+            if (diff < -0.5) return `${Math.abs(diff).toFixed(1)}\u00B0F colder than seasonal avg`;
+            return "Right at the seasonal average";
+        }
+        return `Seasonal avg: ${histAvg}${cfg.unit}`;
+    }
+
     // --- Water temp subtitle with year-over-year comparison ---
     function getWaterSubtitle() {
         // Compare current water temp to historical average for this date
@@ -574,18 +597,44 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .filter(Boolean);
         if (data.length === 0) return;
+
+        const datasets = [{
+            label: "Water Temperature",
+            data: data,
+            borderColor: "#2980b9",
+            backgroundColor: "#2980b922",
+            fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.3
+        }];
+
+        // Add historical average line from dataPast
+        const now = new Date();
+        const todayPacificStr = new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/Los_Angeles",
+            year: "numeric", month: "2-digit", day: "2-digit"
+        }).format(now);
+        const [month, day, year] = todayPacificStr.split("/");
+        const todayMD = `${month}-${day}`;
+        const pastTemps = dataPast.filter(e => e.date.slice(5, 10) === todayMD);
+        const pastAvg = pastTemps.length
+            ? pastTemps.reduce((s, e) => s + Number(e.max_temperature_f), 0) / pastTemps.length
+            : null;
+
+        if (pastAvg != null && data.length >= 2) {
+            datasets.push({
+                label: "Historical avg",
+                data: [{ x: data[0].x, y: Math.round(pastAvg * 10) / 10 }, { x: data[data.length - 1].x, y: Math.round(pastAvg * 10) / 10 }],
+                borderColor: "rgba(0,0,0,0.25)",
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                fill: false,
+            });
+        }
+
         const canvas = document.getElementById("detailChart");
         activeChart = new Chart(canvas, {
             type: "line",
-            data: {
-                datasets: [{
-                    label: "Water Temperature",
-                    data: data,
-                    borderColor: "#2980b9",
-                    backgroundColor: "#2980b922",
-                    fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.3
-                }]
-            },
+            data: { datasets: datasets },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: "index", intersect: false },
@@ -603,17 +652,37 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 },
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: pastAvg != null,
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    },
                     tooltip: {
                         callbacks: {
                             title: tooltipTitle,
-                            label: ti => `${ti.raw.y}\u00B0F`
+                            label: ti => {
+                                if (ti.dataset.label === "Historical avg") return `Hist. avg: ${(Math.round(pastAvg * 10) / 10)}\u00B0F`;
+                                return `${ti.raw.y}\u00B0F`;
+                            }
                         }
                     }
                 }
             },
             plugins: [daylightPlugin(), crosshairPlugin(), nowLinePlugin(), thresholdPlugin(60, "Swimmable 60\u00B0F", "rgba(39,174,96,0.4)")]
         });
+    }
+
+    // --- Historical average lookup for detail charts ---
+    function getHistAvg(key) {
+        if (typeof histWeather === "undefined" || !histWeather || !histWeather.length) return null;
+        const h = histWeather[0];
+        const map = {
+            feels_like: h.avg_feels_like_f,
+            wind: h.avg_wind_mph,
+            rain: h.avg_rain_pct,
+            uv: null,
+            aqi: h.avg_aqi,
+        };
+        return map[key] != null ? Number(map[key]) : null;
     }
 
     // --- Forecast line chart for a given metric ---
@@ -646,18 +715,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.length === 0) return;
 
+        const datasets = [{
+            label: "Forecast",
+            data: data,
+            borderColor: cfg.color,
+            backgroundColor: cfg.color + "22",
+            fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.3
+        }];
+
+        // Add historical average line if available
+        const histAvg = getHistAvg(key);
+        if (histAvg != null && data.length >= 2) {
+            datasets.push({
+                label: "Historical avg",
+                data: [{ x: data[0].x, y: histAvg }, { x: data[data.length - 1].x, y: histAvg }],
+                borderColor: "rgba(0,0,0,0.25)",
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                fill: false,
+            });
+        }
+
         const canvas = document.getElementById("detailChart");
         activeChart = new Chart(canvas, {
             type: "line",
-            data: {
-                datasets: [{
-                    label: getChartTitle(key).split(" \u2014")[0],
-                    data: data,
-                    borderColor: cfg.color,
-                    backgroundColor: cfg.color + "22",
-                    fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.3
-                }]
-            },
+            data: { datasets: datasets },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 interaction: { mode: "index", intersect: false },
@@ -675,11 +758,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 },
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: histAvg != null,
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    },
                     tooltip: {
                         callbacks: {
                             title: tooltipTitle,
-                            label: ti => `${ti.raw.y}${cfg.unit}`
+                            label: ti => {
+                                if (ti.dataset.label === "Historical avg") return `Hist. avg: ${histAvg}${cfg.unit}`;
+                                return `${ti.raw.y}${cfg.unit}`;
+                            }
                         }
                     }
                 }
