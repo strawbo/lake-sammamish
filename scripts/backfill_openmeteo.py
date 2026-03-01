@@ -25,9 +25,9 @@ LON = -122.0906
 ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 AQI_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
 
-# Date range for backfill
+# Date range for backfill (END_DATE auto-capped to yesterday at runtime)
 START_DATE = "2021-01-01"
-END_DATE = "2025-12-31"
+END_DATE = "2026-12-31"
 
 # AQI data starts around Aug 28, 2022
 AQI_START_DATE = "2022-08-28"

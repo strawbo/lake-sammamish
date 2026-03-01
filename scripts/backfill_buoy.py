@@ -20,7 +20,7 @@ BASE_URL = "https://green2.kingcounty.gov/lake-buoy/DataScrape.aspx"
 
 # Years to backfill
 START_YEAR = 2021
-END_YEAR = 2025
+END_YEAR = 2026
 
 
 def safe_float(value):
