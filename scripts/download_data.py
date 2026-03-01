@@ -29,7 +29,7 @@ def fetch_month(year, month, data_type="profile"):
     soup = BeautifulSoup(resp.text, "html.parser")
     table = soup.find("table")
     if not table:
-        print(f"  No data table found for {data_type} {year}-{month:02d}")
+        print(f"  No data table found for {data_type} {year}-{int(month):02d}")
         return [], []
 
     headers = [th.get_text(strip=True) for th in table.find_all("th")]
