@@ -72,6 +72,13 @@ MIGRATIONS = [
         input_snapshot   JSONB
     );
     """,
+
+    # Add precipitation and AQI columns to met_data for historical norms
+    """
+    ALTER TABLE met_data
+    ADD COLUMN IF NOT EXISTS precipitation_mm NUMERIC,
+    ADD COLUMN IF NOT EXISTS us_aqi NUMERIC;
+    """,
 ]
 
 if __name__ == "__main__":

@@ -122,6 +122,7 @@ if __name__ == "__main__":
                 wind_kmh = hourly["wind_speed_10m"][i]
                 solar_w = hourly["shortwave_radiation"][i]
                 humidity = hourly["relative_humidity_2m"][i]
+                precip_mm = hourly["precipitation"][i]
 
                 # wind_speed_10m default unit is km/h, convert to m/s
                 wind_ms_val = float(wind_kmh) / 3.6 if wind_kmh is not None else None
@@ -134,6 +135,8 @@ if __name__ == "__main__":
                     wind_ms_val,
                     float(hourly["wind_direction_10m"][i]) if hourly["wind_direction_10m"][i] is not None else None,
                     float(temp_c) if temp_c is not None else None,
+                    float(precip_mm) if precip_mm is not None else None,
+                    None,  # us_aqi (comes from AQI backfill)
                 ))
 
             if batch:
@@ -142,7 +145,8 @@ if __name__ == "__main__":
                     cursor,
                     """
                     INSERT INTO met_data (date, relative_humidity, solar_radiation_w, pressure_mb,
-                                          wind_speed_ms, wind_direction_deg, air_temperature_c)
+                                          wind_speed_ms, wind_direction_deg, air_temperature_c,
+                                          precipitation_mm, us_aqi)
                     VALUES %s
                     ON CONFLICT (date)
                     DO UPDATE SET
@@ -151,7 +155,9 @@ if __name__ == "__main__":
                         pressure_mb = COALESCE(met_data.pressure_mb, EXCLUDED.pressure_mb),
                         wind_speed_ms = COALESCE(met_data.wind_speed_ms, EXCLUDED.wind_speed_ms),
                         wind_direction_deg = COALESCE(met_data.wind_direction_deg, EXCLUDED.wind_direction_deg),
-                        air_temperature_c = COALESCE(met_data.air_temperature_c, EXCLUDED.air_temperature_c);
+                        air_temperature_c = COALESCE(met_data.air_temperature_c, EXCLUDED.air_temperature_c),
+                        precipitation_mm = COALESCE(met_data.precipitation_mm, EXCLUDED.precipitation_mm),
+                        us_aqi = COALESCE(met_data.us_aqi, EXCLUDED.us_aqi);
                     """,
                     batch,
                     page_size=1000
@@ -169,11 +175,7 @@ if __name__ == "__main__":
 
     print(f"Weather backfill: {total_weather} total rows")
 
-    # --- Backfill AQI + UV data ---
-    # Store in weather_forecast table since met_data doesn't have AQI/UV columns
-    # Use a fixed fetched_at to mark these as historical backfill
-    backfill_marker = datetime(2000, 1, 1)  # Sentinel value for backfill data
-
+    # --- Backfill AQI data into met_data ---
     aqi_start = datetime.strptime(AQI_START_DATE, "%Y-%m-%d")
     total_aqi = 0
 
@@ -191,32 +193,24 @@ if __name__ == "__main__":
             for i, time_str in enumerate(hourly["time"]):
                 dt = datetime.strptime(time_str, "%Y-%m-%dT%H:%M")
                 aqi = hourly["us_aqi"][i]
-                uv = hourly["uv_index"][i]
 
-                if aqi is None and uv is None:
+                if aqi is None:
                     continue
 
                 batch.append((
                     dt,
-                    backfill_marker,
-                    None, None, None, None, None, None,
-                    float(uv) if uv is not None else None,
-                    None,
-                    float(aqi) if aqi is not None else None,
-                    None,
+                    float(aqi),
                 ))
 
             if batch:
                 psycopg2.extras.execute_values(
                     cursor,
                     """
-                    INSERT INTO weather_forecast (
-                        forecast_time, fetched_at,
-                        temperature_f, feels_like_f, wind_speed_mph, wind_direction_deg,
-                        precip_probability, cloud_cover, uv_index, solar_radiation_w,
-                        us_aqi, pm25
-                    ) VALUES %s
-                    ON CONFLICT (forecast_time, fetched_at) DO NOTHING;
+                    INSERT INTO met_data (date, us_aqi)
+                    VALUES %s
+                    ON CONFLICT (date)
+                    DO UPDATE SET
+                        us_aqi = COALESCE(met_data.us_aqi, EXCLUDED.us_aqi);
                     """,
                     batch,
                     page_size=1000
