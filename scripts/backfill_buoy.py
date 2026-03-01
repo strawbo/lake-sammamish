@@ -19,7 +19,7 @@ DB_URL = os.getenv("SUPABASE_DB_URL")
 BASE_URL = "https://green2.kingcounty.gov/lake-buoy/DataScrape.aspx"
 
 # Years to backfill
-START_YEAR = 2021
+START_YEAR = 2026
 END_YEAR = 2026
 
 
