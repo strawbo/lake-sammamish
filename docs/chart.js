@@ -869,7 +869,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const weak = factors.filter(f => f.score < 50).sort((a, b) => a.score - b.score);
         if (weak.length === 0) return "";
-        return weak.slice(0, 2).map(f => f.text).join(", ");
+        return weak.slice(0, 2).map((f, i) => i === 0 ? f.text : f.text.toLowerCase()).join(", ");
     }
 
     // Render all sections
