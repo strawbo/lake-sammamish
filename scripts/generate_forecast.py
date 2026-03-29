@@ -528,6 +528,6 @@ if __name__ == "__main__":
 
     # Write output
     os.makedirs("docs", exist_ok=True)
-    with open("docs/data.json", "w") as f:
+    with open("docs/seasonal-data.json", "w") as f:
         json.dump(output, f)
-    print(f"Wrote docs/data.json with {len(forecast_days)} days of forecast")
+    print(f"Wrote docs/seasonal-data.json with {len(forecast_days)} days of forecast")

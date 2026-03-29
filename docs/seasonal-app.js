@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    fetch("data.json")
+    fetch("seasonal-data.json")
         .then(r => r.json())
         .then(data => render(data))
         .catch(err => {

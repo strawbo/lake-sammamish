@@ -17,13 +17,16 @@ King County Buoy + Open-Meteo APIs
   docs/index.html (static, served by GitHub Pages)
 ```
 
-## Companion Site
+## Seasonal Outlook (merged from lake-sammamish-seasonal)
 
-**Seasonal Outlook**: https://strawbo.github.io/lake-sammamish-seasonal
-- Repo: `/Users/snielson/dev/Personal/lake-sammamish-seasonal`
+**Live site**: https://strawbo.github.io/lake-sammamish/seasonal.html
+- Previously a separate repo (`lake-sammamish-seasonal`), now merged into this repo
 - Year-long swim score projections based on historical data
 - Shares the same Supabase database (lake_data, met_data tables)
-- Nav links connect the two sites
+- Nav links connect the two pages
+- Daily generation via `seasonal_forecast.yml` workflow (6:30 AM PT)
+- Script: `scripts/generate_forecast.py` → outputs `docs/seasonal-data.json`
+- Frontend: `docs/seasonal.html` + `docs/seasonal-app.js` + `docs/seasonal-style.css`
 
 ## Key Files
 
@@ -40,6 +43,11 @@ King County Buoy + Open-Meteo APIs
 | `templates/template.html` | HTML template with `{{PLACEHOLDER}}` variables |
 | `docs/chart.js` | Frontend rendering (~1200 lines, Chart.js) |
 | `docs/style.css` | Styling |
+| `scripts/generate_forecast.py` | Seasonal: queries DB, projects 365-day forecast, outputs JSON |
+| `docs/seasonal.html` | Seasonal frontend HTML |
+| `docs/seasonal-app.js` | Seasonal frontend JS (Chart.js rendering, metric switching) |
+| `docs/seasonal-style.css` | Seasonal styling |
+| `docs/seasonal-data.json` | Seasonal generated output (365 days of projections + actuals) |
 
 ## Database Schema (Supabase PostgreSQL)
 
@@ -108,6 +116,7 @@ Weighted sum of 8 factors (0-100 scale):
 - **data_pipeline.yml**: Runs every 4 hours. Full pipeline: migrate → download → import → forecast → comfort → generate → push.
 - **backfill.yml**: Manual trigger. Backfills King County buoy + Open-Meteo historical data. 60-min timeout.
 - **regenerate_html.yml**: Manual trigger. Regenerates HTML without fetching new data.
+- **seasonal_forecast.yml**: Runs daily at 6:30 AM PT. Generates seasonal outlook data and commits `docs/seasonal-data.json`.
 
 ## Secrets
 
