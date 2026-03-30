@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    fetch("seasonal-data.json")
+    fetch("seasonal-data.json?d=" + new Date().toISOString().slice(0, 10))
         .then(r => r.json())
         .then(data => render(data))
         .catch(err => {
