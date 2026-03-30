@@ -128,20 +128,24 @@ def get_historical_water_temps(conn):
 
 
 def get_current_year_bias(conn):
-    """Compare this year's recent water temps to historical average.
+    """Compare recent water temps (last 30 days) to the historical average for the same DOYs.
 
-    Returns the average difference (°F) between this year and historical.
+    Uses a rolling 30-day window so the value stays responsive to current conditions
+    rather than being diluted across the full YTD span. Both sides use AVG for a
+    like-for-like comparison.
+
+    Returns the average difference (°F) between recent actuals and historical.
     Positive = warmer than normal, negative = colder.
     """
     result = conn.execute(text("""
-        WITH current_year AS (
+        WITH current_period AS (
             SELECT EXTRACT(DOY FROM date) AS doy,
-                   MAX(temperature_c) AS temp_c
+                   AVG(temperature_c) AS avg_temp_c
             FROM lake_data
             WHERE depth_m < 1.5
               AND temperature_c IS NOT NULL
-              AND date >= DATE_TRUNC('year', NOW())
-              AND date <= NOW()
+              AND date >= NOW() - INTERVAL '30 days'
+              AND date < NOW()
             GROUP BY EXTRACT(DOY FROM date)
         ),
         historical AS (
@@ -153,8 +157,8 @@ def get_current_year_bias(conn):
               AND EXTRACT(YEAR FROM date) < EXTRACT(YEAR FROM NOW())
             GROUP BY EXTRACT(DOY FROM date)
         )
-        SELECT AVG(c.temp_c - h.avg_temp_c) AS bias_c
-        FROM current_year c
+        SELECT AVG(c.avg_temp_c - h.avg_temp_c) AS bias_c
+        FROM current_period c
         JOIN historical h ON c.doy = h.doy;
     """))
     row = result.fetchone()
@@ -332,6 +336,42 @@ if __name__ == "__main__":
         }
     print(f"Current year weather actuals: {len(current_year_weather)} days")
 
+    # Get actual comfort scores from the comfort_score table (YTD, up to now)
+    # Use peak (MAX) score per day as the best daytime conditions.
+    comfort_score_actuals = {}
+    rows = conn.execute(text("""
+        SELECT DATE(score_time AT TIME ZONE 'America/Los_Angeles') AS day,
+               MAX(overall_score) AS peak_score
+        FROM comfort_score
+        WHERE score_time AT TIME ZONE 'America/Los_Angeles'
+              >= DATE_TRUNC('year', NOW() AT TIME ZONE 'America/Los_Angeles')
+          AND score_time < NOW()
+        GROUP BY DATE(score_time AT TIME ZONE 'America/Los_Angeles')
+        ORDER BY day;
+    """)).fetchall()
+    for r in rows:
+        comfort_score_actuals[r[0].strftime("%Y-%m-%d")] = round(float(r[1]), 1)
+    print(f"Comfort score actuals: {len(comfort_score_actuals)} days")
+
+    # Get short-term forecast from comfort_score table (today + next 8 days).
+    # These are based on real weather forecast data, so they should override
+    # the seasonal historical-norm projections for the near term.
+    short_term_comfort = {}
+    rows = conn.execute(text("""
+        SELECT DATE(score_time AT TIME ZONE 'America/Los_Angeles') AS day,
+               MAX(overall_score) AS peak_score
+        FROM comfort_score
+        WHERE score_time AT TIME ZONE 'America/Los_Angeles'
+              >= DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Los_Angeles')
+          AND score_time AT TIME ZONE 'America/Los_Angeles'
+              < DATE_TRUNC('day', NOW() AT TIME ZONE 'America/Los_Angeles') + INTERVAL '9 days'
+        GROUP BY DATE(score_time AT TIME ZONE 'America/Los_Angeles')
+        ORDER BY day;
+    """)).fetchall()
+    for r in rows:
+        short_term_comfort[r[0].strftime("%Y-%m-%d")] = round(float(r[1]), 1)
+    print(f"Short-term comfort forecast: {len(short_term_comfort)} days")
+
     conn.close()
     engine.dispose()
 
@@ -501,6 +541,7 @@ if __name__ == "__main__":
         weather_actual = current_year_weather.get(ds, {})
         actuals.append({
             "date": ds,
+            "overall_score": comfort_score_actuals.get(ds),
             "water_temp_f": water_f_actual,
             "air_temp_f": weather_actual.get("air_temp_f"),
             "solar_w": weather_actual.get("solar_w"),
@@ -510,12 +551,28 @@ if __name__ == "__main__":
         date += timedelta(days=1)
 
     # Smooth actuals too (daily peak solar/air temp swing wildly day-to-day)
-    for field in ["water_temp_f", "air_temp_f", "solar_w"]:
+    for field in ["overall_score", "water_temp_f", "air_temp_f", "solar_w"]:
         raw_vals = [d.get(field) if d.get(field) is not None else np.nan for d in actuals]
         smoothed = pd.Series(raw_vals).rolling(window=SMOOTH_WINDOW, min_periods=1, center=True).mean()
         for i, d in enumerate(actuals):
             if not np.isnan(smoothed.iloc[i]):
-                d[field] = round(float(smoothed.iloc[i]), 1 if field != "solar_w" else 0)
+                decimals = 0 if field == "solar_w" else 1
+                d[field] = round(float(smoothed.iloc[i]), decimals)
+
+    # Override the first ~8 days of the forecast with actual comfort scores from
+    # compute_comfort.py (which uses real weather forecast data, not historical norms).
+    # This ensures the Seasonal Outlook short-term projections match the Swim Score page.
+    if short_term_comfort:
+        for d in forecast_days:
+            if d["date"] in short_term_comfort:
+                d["overall_score"] = short_term_comfort[d["date"]]
+        # Re-smooth smoothed_score so the transition at the 8-day boundary is gradual.
+        scores_patched = [d["overall_score"] for d in forecast_days]
+        scores_resmoothed = pd.Series(scores_patched).rolling(
+            window=SMOOTH_WINDOW, min_periods=1, center=True
+        ).mean()
+        for i, d in enumerate(forecast_days):
+            d["smoothed_score"] = round(float(scores_resmoothed.iloc[i]), 1)
 
     output = {
         "generated_at": today.strftime("%Y-%m-%dT%H:%M:%S"),
