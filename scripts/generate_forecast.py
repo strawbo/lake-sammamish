@@ -588,3 +588,14 @@ if __name__ == "__main__":
     with open("docs/seasonal-data.json", "w") as f:
         json.dump(output, f)
     print(f"Wrote docs/seasonal-data.json with {len(forecast_days)} days of forecast")
+
+    # Generate seasonal.html from template with cache-busting version
+    cache_version = today.strftime("%Y%m%d%H%M")
+    template_path = os.path.join("templates", "seasonal-template.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r") as f:
+            html = f.read()
+        html = html.replace("{{CACHE_VERSION}}", cache_version)
+        with open("docs/seasonal.html", "w") as f:
+            f.write(html)
+        print(f"Wrote docs/seasonal.html with cache version {cache_version}")
