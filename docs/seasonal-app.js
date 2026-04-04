@@ -358,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: "index", intersect: false },
+                    interaction: { mode: "nearest", axis: "x", intersect: false },
                     onClick: (evt, elements) => {
                         if (!elements.length) return;
                         // Find the forecast day closest to the clicked date
