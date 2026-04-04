@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let text = `Conditions projected "Good" by ${gdStr}`;
             if (excellentDay) {
                 const ed = new Date(excellentDay.date + "T12:00:00");
-                const edStr = new Intl.DateTimeFormat("en-US", { month: "long" }).format(ed);
+                const edStr = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric" }).format(ed);
                 text += `, "Excellent" by ${edStr}`;
             }
             subtitle.textContent = text;
