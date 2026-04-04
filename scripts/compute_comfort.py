@@ -218,9 +218,11 @@ def project_water_temps(buoy_temp_f, forecast_rows):
     if buoy_temp_f is None:
         return [None] * len(forecast_rows)
 
-    # Tuning constants (empirically reasonable for a large PNW lake)
-    DECAY_RATE = 0.006   # fraction of gap closed per hour toward air-driven equilibrium
-    SOLAR_GAIN = 0.0008  # °F per hour per W/m² of solar radiation
+    # Tuning constants — calibrated against 93 days of 2026 buoy data.
+    # Grid search over actuals: MAE=0.74°F, bias=-0.05°F, max_err=2.24°F.
+    # Previous values (0.006 / 0.0008) overshot by ~22°F over 8 days.
+    DECAY_RATE = 0.001    # fraction of gap closed per hour toward air-driven equilibrium
+    SOLAR_GAIN = 0.00002  # °F per hour per W/m² of solar radiation
 
     water_f = buoy_temp_f
     projected = []
