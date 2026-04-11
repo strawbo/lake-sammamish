@@ -103,6 +103,9 @@ html, body {
 .chart-container canvas {
     width: 100% !important;
     height: 100% !important;
+    touch-action: pan-x;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .legend-strip {
