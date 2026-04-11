@@ -6,6 +6,15 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <script>
+    // Force daily cache-bust redirect to defeat aggressive browser caching
+    (function() {
+        var d = new Date().toISOString().slice(0, 10);
+        if (location.search.indexOf('v=' + d) === -1) {
+            location.replace(location.pathname + '?v=' + d);
+        }
+    })();
+    </script>
     <title>2026 Lake Sammamish Seasonal Outlook</title>
     <link rel="stylesheet" href="seasonal-style.css?v={{CACHE_VERSION}}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
