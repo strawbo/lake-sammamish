@@ -12,12 +12,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Points of interest (non-wind, shown as labels on the map)
     var POIS = [
-        { name: "Boat Launch", lat: 47.558, lon: -122.062, icon: "\u2693" },
+        { name: "Boat Launch", lat: 47.561, lon: -122.057, icon: "\u2693" },
     ];
 
     // Hazard areas (shown as warning markers)
     var HAZARDS = [
-        { name: "Sunken Forest", lat: 47.560, lon: -122.078, desc: "Submerged stumps" },
+        { name: "Sunken Forest", lat: 47.567, lon: -122.085, desc: "Submerged stumps" },
         { name: "Shallow Area", lat: 47.652, lon: -122.097, desc: "Bear Creek delta" },
     ];
 
