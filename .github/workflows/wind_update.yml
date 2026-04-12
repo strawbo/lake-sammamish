@@ -1,0 +1,36 @@
+name: Update Wind Map Data
+
+on:
+  schedule:
+    - cron: "15 */2 * * *"  # Every 2 hours at :15
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate wind data
+        run: python scripts/generate_wind.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/wind-data.json
+          git diff --cached --quiet || git commit -m "Update wind map data"
+          git push origin main || echo "Nothing to push"
