@@ -12,10 +12,10 @@ from datetime import datetime
 ZONES = [
     {"id": "north", "name": "North End", "lat": 47.640, "lon": -122.092},
     {"id": "ne_shore", "name": "NE Shore", "lat": 47.622, "lon": -122.078},
-    {"id": "mid_west", "name": "The Cove", "lat": 47.600, "lon": -122.102},
+    {"id": "mid_west", "name": "The Cove", "lat": 47.612, "lon": -122.102},
     {"id": "mid_east", "name": "Mid-Lake East", "lat": 47.600, "lon": -122.082},
     {"id": "south_central", "name": "South Central", "lat": 47.580, "lon": -122.090},
-    {"id": "south_launch", "name": "Boat Launch", "lat": 47.560, "lon": -122.075},
+    {"id": "south_end", "name": "South End", "lat": 47.565, "lon": -122.082},
 ]
 
 # Sheltering parameters per zone
@@ -28,7 +28,7 @@ SHELTER_PARAMS = {
     "mid_west":      {"fetch": [4.0, 2.0, 2.0, 1.0, 5.0,  0.2, 0.1, 0.3], "terrain": [0.0, 0.0, 0.0, 0.3, 0.0, 0.8, 0.9, 0.7]},
     "mid_east":      {"fetch": [4.0, 0.3, 0.2, 0.3, 5.0,  5.0, 2.0, 2.0], "terrain": [0.0, 0.4, 0.5, 0.4, 0.0, 0.0, 0.0, 0.0]},
     "south_central": {"fetch": [7.0, 3.0, 1.0, 0.5, 2.0,  0.5, 0.5, 4.0], "terrain": [0.0, 0.0, 0.4, 0.5, 0.3, 0.5, 0.7, 0.1]},
-    "south_launch":  {"fetch": [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], "terrain": [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1]},
+    "south_end":     {"fetch": [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], "terrain": [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1]},
 }
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"

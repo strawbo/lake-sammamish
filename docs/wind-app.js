@@ -1,13 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // === Zone Definitions ===
+    // === Zone Definitions (wind prediction points, centered in open water) ===
     var ZONES = [
         { id: "north", name: "North End", lat: 47.640, lon: -122.092 },
         { id: "ne_shore", name: "NE Shore", lat: 47.622, lon: -122.078 },
-        { id: "mid_west", name: "The Cove", lat: 47.600, lon: -122.102 },
+        { id: "mid_west", name: "The Cove", lat: 47.612, lon: -122.102 },
         { id: "mid_east", name: "Mid-Lake East", lat: 47.600, lon: -122.082 },
         { id: "south_central", name: "South Central", lat: 47.580, lon: -122.090 },
-        { id: "south_launch", name: "Boat Launch", lat: 47.560, lon: -122.075 },
+        { id: "south_end", name: "South End", lat: 47.565, lon: -122.082 },
+    ];
+
+    // Points of interest (non-wind, shown as labels on the map)
+    var POIS = [
+        { name: "Boat Launch", lat: 47.558, lon: -122.062, icon: "\u2693" },
+    ];
+
+    // Hazard areas (shown as warning markers)
+    var HAZARDS = [
+        { name: "Sunken Forest", lat: 47.560, lon: -122.078, desc: "Submerged stumps" },
+        { name: "Shallow Area", lat: 47.652, lon: -122.097, desc: "Bear Creek delta" },
     ];
 
     // Sheltering parameters per zone: fetch distance (km) and terrain shelter (0-1)
@@ -20,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         mid_west:      { fetch: [4.0, 2.0, 2.0, 1.0, 5.0,  0.2, 0.1, 0.3], terrain: [0.0, 0.0, 0.0, 0.3, 0.0, 0.8, 0.9, 0.7] },
         mid_east:      { fetch: [4.0, 0.3, 0.2, 0.3, 5.0,  5.0, 2.0, 2.0], terrain: [0.0, 0.4, 0.5, 0.4, 0.0, 0.0, 0.0, 0.0] },
         south_central: { fetch: [7.0, 3.0, 1.0, 0.5, 2.0,  0.5, 0.5, 4.0], terrain: [0.0, 0.0, 0.4, 0.5, 0.3, 0.5, 0.7, 0.1] },
-        south_launch:  { fetch: [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], terrain: [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1] },
+        south_end:     { fetch: [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], terrain: [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1] },
     };
 
     var DIR_LABELS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -272,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
             mid_west:      { dx: -26, dy: -8, anchor: "end" },
             mid_east:      { dx: 26, dy: -8 },
             south_central: { dx: 26, dy: -8 },
-            south_launch:  { dx: -26, dy: -8, anchor: "end" },
+            south_end:     { dx: -26, dy: -8, anchor: "end" },
         };
 
         // Zone markers
@@ -331,6 +342,53 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             label.textContent = zone.name;
             svg.appendChild(label);
+        });
+
+        // Hazard markers (warning triangles)
+        HAZARDS.forEach(function (hz) {
+            var hpos = latLonToSvg(hz.lat, hz.lon);
+            var triSize = 8;
+            var triPts = [
+                (hpos[0]) + "," + (hpos[1] - triSize),
+                (hpos[0] - triSize * 0.85) + "," + (hpos[1] + triSize * 0.6),
+                (hpos[0] + triSize * 0.85) + "," + (hpos[1] + triSize * 0.6)
+            ].join(" ");
+            svg.appendChild(svgEl("polygon", {
+                points: triPts, fill: "#d35400", stroke: "#fff", "stroke-width": "1.5"
+            }));
+            var hText = svgEl("text", {
+                x: hpos[0], y: hpos[1] - 1, "text-anchor": "middle",
+                "dominant-baseline": "central", fill: "#fff",
+                "font-size": "9", "font-weight": "700"
+            });
+            hText.textContent = "!";
+            svg.appendChild(hText);
+            var hLabel = svgEl("text", {
+                x: hpos[0], y: hpos[1] + triSize + 11,
+                "text-anchor": "middle", fill: "#d35400",
+                "font-size": "8", "font-weight": "600"
+            });
+            hLabel.textContent = hz.name;
+            svg.appendChild(hLabel);
+        });
+
+        // Points of interest
+        POIS.forEach(function (poi) {
+            var ppos = latLonToSvg(poi.lat, poi.lon);
+            var pIcon = svgEl("text", {
+                x: ppos[0], y: ppos[1] + 2, "text-anchor": "middle",
+                "dominant-baseline": "central",
+                "font-size": "16"
+            });
+            pIcon.textContent = poi.icon;
+            svg.appendChild(pIcon);
+            var pLabel = svgEl("text", {
+                x: ppos[0], y: ppos[1] + 16,
+                "text-anchor": "middle", fill: "#555",
+                "font-size": "9", "font-weight": "600"
+            });
+            pLabel.textContent = poi.name;
+            svg.appendChild(pLabel);
         });
 
         // Geographic labels
