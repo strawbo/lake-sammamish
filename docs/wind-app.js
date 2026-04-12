@@ -217,8 +217,6 @@ document.addEventListener("DOMContentLoaded", function () {
         rec.classList.add("visible");
 
         renderMap(zones, best.id);
-        renderZoneCards(zones);
-        renderHourly(zones, best);
     }
 
     // === SVG Helpers ===
@@ -350,55 +348,10 @@ document.addEventListener("DOMContentLoaded", function () {
             svg.appendChild(gt);
         });
 
-        container.innerHTML = "";
-        container.appendChild(svg);
-    }
-
-    // === Zone Cards ===
-    function renderZoneCards(zones) {
-        var container = document.getElementById("zoneCards");
-        container.innerHTML = "";
-        var sorted = zones.slice().sort(function (a, b) { return b.chop_score - a.chop_score; });
-
-        sorted.forEach(function (zone) {
-            var card = document.createElement("div");
-            card.className = "zone-card";
-            var dir = DIR_LABELS[dirBucket(zone.wind_dir_deg)];
-            card.innerHTML =
-                '<div class="zone-card-header">' +
-                '<span class="zone-card-score" style="background:' + chopColor(zone.chop_score) + '">' + zone.chop_score + '</span>' +
-                '<span class="zone-card-name">' + zone.name + '</span>' +
-                '<span class="zone-card-label">' + zone.chop_label + '</span>' +
-                '</div>' +
-                '<div class="zone-card-detail">' +
-                '<span>Wind: ' + zone.wind_mph + ' mph ' + dir + '</span>' +
-                '<span>Effective: ' + zone.effective_wind_mph + ' mph</span>' +
-                (zone.gust_mph > zone.wind_mph + 2 ? '<span>Gusts: ' + zone.gust_mph + ' mph</span>' : '') +
-                '</div>';
-            container.appendChild(card);
-        });
-    }
-
-    // === Hourly Timeline ===
-    function renderHourly(zones, best) {
-        var container = document.getElementById("hourlyCards");
-        container.innerHTML = "";
-        document.getElementById("hourlyTitle").textContent = "Next 8 Hours — " + best.name;
-
-        var hourly = best.hourly || [];
-        hourly.slice(0, 8).forEach(function (h) {
-            var time = new Date(h.time);
-            var timeStr = new Intl.DateTimeFormat("en-US", { hour: "numeric", hour12: true }).format(time);
-            var dir = DIR_LABELS[dirBucket(h.wind_dir_deg)];
-            var card = document.createElement("div");
-            card.className = "hourly-card";
-            card.innerHTML =
-                '<div class="hourly-time">' + timeStr + '</div>' +
-                '<div class="hourly-score" style="background:' + chopColor(h.chop_score) + '">' + h.chop_score + '</div>' +
-                '<div class="hourly-label">' + h.chop_label + '</div>' +
-                '<div class="hourly-wind">' + h.wind_mph + ' ' + dir + '</div>';
-            container.appendChild(card);
-        });
+        // Insert SVG before the overlays (keep header and rec card on top)
+        var header = document.getElementById("mapHeader");
+        var rec = document.getElementById("recommendation");
+        container.insertBefore(svg, header);
     }
 
     // === Init ===
