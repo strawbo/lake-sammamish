@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
         { id: "mid_west", name: "The Cove", lat: 47.600, lon: -122.102 },
         { id: "mid_east", name: "Mid-Lake East", lat: 47.600, lon: -122.082 },
         { id: "south_central", name: "South Central", lat: 47.580, lon: -122.090 },
-        { id: "south_launch", name: "Boat Launch", lat: 47.568, lon: -122.085 },
+        { id: "south_launch", name: "Boat Launch", lat: 47.560, lon: -122.075 },
     ];
 
     // Sheltering parameters per zone: fetch distance (km) and terrain shelter (0-1)
@@ -251,19 +251,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }).join(" ");
         svg.appendChild(svgEl("polygon", { points: pts, fill: "#c5dff0", stroke: "#8bb5d4", "stroke-width": "1.5" }));
 
-        // Compass N indicator
+        // Compass N indicator (arrow points up = north)
         var nx = SVG_W - 22;
-        var cText = svgEl("text", {
-            x: nx, y: 22, "text-anchor": "middle",
-            fill: "#999", "font-size": "13", "font-weight": "600"
-        });
-        cText.textContent = "N";
-        svg.appendChild(cText);
         svg.appendChild(svgEl("line", {
-            x1: nx, y1: 28, x2: nx, y2: 42,
+            x1: nx, y1: 42, x2: nx, y2: 18,
             stroke: "#bbb", "stroke-width": "1.5",
             "marker-end": "url(#arrowhead)"
         }));
+        var cText = svgEl("text", {
+            x: nx, y: 14, "text-anchor": "middle",
+            fill: "#999", "font-size": "11", "font-weight": "600"
+        });
+        cText.textContent = "N";
+        svg.appendChild(cText);
 
         // Label offsets per zone (to avoid overlap with arrows/circles)
         var labelOffsets = {

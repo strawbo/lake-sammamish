@@ -15,7 +15,7 @@ ZONES = [
     {"id": "mid_west", "name": "The Cove", "lat": 47.600, "lon": -122.102},
     {"id": "mid_east", "name": "Mid-Lake East", "lat": 47.600, "lon": -122.082},
     {"id": "south_central", "name": "South Central", "lat": 47.580, "lon": -122.090},
-    {"id": "south_launch", "name": "Boat Launch", "lat": 47.568, "lon": -122.085},
+    {"id": "south_launch", "name": "Boat Launch", "lat": 47.560, "lon": -122.075},
 ]
 
 # Sheltering parameters per zone
