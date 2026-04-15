@@ -8,14 +8,15 @@ import json
 import requests
 from datetime import datetime
 
-# 6 zones along Lake Sammamish
+# 7 zones along Lake Sammamish
 ZONES = [
-    {"id": "north", "name": "North End", "lat": 47.640, "lon": -122.092},
-    {"id": "ne_shore", "name": "NE Shore", "lat": 47.622, "lon": -122.078},
-    {"id": "mid_west", "name": "The Cove", "lat": 47.612, "lon": -122.102},
-    {"id": "mid_east", "name": "Mid-Lake East", "lat": 47.600, "lon": -122.082},
-    {"id": "south_central", "name": "South Central", "lat": 47.580, "lon": -122.090},
-    {"id": "south_end", "name": "South End", "lat": 47.565, "lon": -122.082},
+    {"id": "south_end",      "name": "South End",      "lat": 47.56351, "lon": -122.07801},
+    {"id": "south_central",  "name": "South Central",  "lat": 47.57988, "lon": -122.07903},
+    {"id": "mid_west",       "name": "The Cove",       "lat": 47.57750, "lon": -122.10888},
+    {"id": "mid_east",       "name": "Mid-Lake East",  "lat": 47.60488, "lon": -122.08077},
+    {"id": "north_west",     "name": "North West",     "lat": 47.61061, "lon": -122.10565},
+    {"id": "ne_shore",       "name": "NE Shore",       "lat": 47.61899, "lon": -122.07136},
+    {"id": "north",          "name": "North End",      "lat": 47.63642, "lon": -122.08343},
 ]
 
 # Sheltering parameters per zone
@@ -23,12 +24,13 @@ ZONES = [
 # terrain: how much upwind terrain blocks the wind, 0=none, 1=full (per 8 directions)
 # Directions: N, NE, E, SE, S, SW, W, NW
 SHELTER_PARAMS = {
-    "north":         {"fetch": [0.2, 0.3, 0.8, 5.0, 10.0, 6.0, 1.0, 0.2], "terrain": [0.1, 0.1, 0.4, 0.0, 0.0, 0.0, 0.6, 0.2]},
-    "ne_shore":      {"fetch": [2.0, 0.2, 0.2, 0.3, 6.0,  8.0, 2.0, 1.0], "terrain": [0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0]},
+    "south_end":     {"fetch": [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], "terrain": [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1]},
+    "south_central": {"fetch": [7.0, 3.0, 1.0, 0.5, 2.0,  0.5, 0.5, 4.0], "terrain": [0.0, 0.0, 0.4, 0.5, 0.3, 0.5, 0.7, 0.1]},
     "mid_west":      {"fetch": [4.0, 2.0, 2.0, 1.0, 5.0,  0.2, 0.1, 0.3], "terrain": [0.0, 0.0, 0.0, 0.3, 0.0, 0.8, 0.9, 0.7]},
     "mid_east":      {"fetch": [4.0, 0.3, 0.2, 0.3, 5.0,  5.0, 2.0, 2.0], "terrain": [0.0, 0.4, 0.5, 0.4, 0.0, 0.0, 0.0, 0.0]},
-    "south_central": {"fetch": [7.0, 3.0, 1.0, 0.5, 2.0,  0.5, 0.5, 4.0], "terrain": [0.0, 0.0, 0.4, 0.5, 0.3, 0.5, 0.7, 0.1]},
-    "south_end":     {"fetch": [10.0,5.0, 0.3, 0.2, 0.2,  0.3, 0.3, 3.0], "terrain": [0.0, 0.0, 0.5, 0.6, 0.7, 0.6, 0.7, 0.1]},
+    "north_west":    {"fetch": [0.3, 0.5, 1.5, 4.0, 6.0,  0.2, 0.1, 0.2], "terrain": [0.2, 0.0, 0.0, 0.0, 0.0, 0.8, 0.9, 0.6]},
+    "ne_shore":      {"fetch": [2.0, 0.2, 0.2, 0.3, 6.0,  8.0, 2.0, 1.0], "terrain": [0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0]},
+    "north":         {"fetch": [0.2, 0.3, 0.8, 5.0, 10.0, 6.0, 1.0, 0.2], "terrain": [0.1, 0.1, 0.4, 0.0, 0.0, 0.0, 0.6, 0.2]},
 }
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
