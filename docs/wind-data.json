@@ -1,63 +1,63 @@
 {
-  "generated_at": "2026-04-26T13:39:59",
+  "generated_at": "2026-04-26T17:00:46",
   "zones": [
     {
       "id": "south_end",
       "name": "South End",
       "lat": 47.56351,
       "lon": -122.07801,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 5.5,
-      "wind_dir_deg": 328,
-      "gust_mph": 7.8,
-      "effective_wind_mph": 5.2,
-      "chop_score": 57,
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.8,
+      "wind_dir_deg": 332,
+      "gust_mph": 9.4,
+      "effective_wind_mph": 5.5,
+      "chop_score": 51,
       "chop_label": "Choppy",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 5.5,
-          "wind_dir_deg": 328,
-          "gust_mph": 7.8,
-          "effective_wind_mph": 5.2,
-          "chop_score": 57,
+          "time": "2026-04-26T17:00",
+          "wind_mph": 5.8,
+          "wind_dir_deg": 332,
+          "gust_mph": 9.4,
+          "effective_wind_mph": 5.5,
+          "chop_score": 51,
           "chop_label": "Choppy"
         },
         {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 4.5,
-          "wind_dir_deg": 333,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.2,
-          "chop_score": 62,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T15:00",
+          "time": "2026-04-26T18:00",
           "wind_mph": 4.7,
-          "wind_dir_deg": 335,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.4,
-          "chop_score": 62,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
-          "gust_mph": 6.7,
-          "effective_wind_mph": 4.0,
-          "chop_score": 65,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T17:00",
-          "wind_mph": 4.4,
-          "wind_dir_deg": 330,
+          "wind_dir_deg": 341,
           "gust_mph": 7.4,
-          "effective_wind_mph": 4.1,
-          "chop_score": 62,
+          "effective_wind_mph": 4.7,
+          "chop_score": 59,
+          "chop_label": "Choppy"
+        },
+        {
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.1,
+          "wind_dir_deg": 360,
+          "gust_mph": 6.5,
+          "effective_wind_mph": 3.1,
+          "chop_score": 68,
           "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T20:00",
+          "wind_mph": 3.4,
+          "wind_dir_deg": 8,
+          "gust_mph": 6.3,
+          "effective_wind_mph": 3.4,
+          "chop_score": 68,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 2.1,
+          "wind_dir_deg": 49,
+          "gust_mph": 2.0,
+          "effective_wind_mph": 2.1,
+          "chop_score": 85,
+          "chop_label": "Glass"
         }
       ]
     },
@@ -66,57 +66,57 @@
       "name": "South Central",
       "lat": 47.57988,
       "lon": -122.07903,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.8,
-      "wind_dir_deg": 319,
-      "gust_mph": 6.7,
-      "effective_wind_mph": 4.5,
-      "chop_score": 63,
-      "chop_label": "Rideable",
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.7,
+      "wind_dir_deg": 334,
+      "gust_mph": 8.9,
+      "effective_wind_mph": 5.4,
+      "chop_score": 53,
+      "chop_label": "Choppy",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.8,
-          "wind_dir_deg": 319,
-          "gust_mph": 6.7,
-          "effective_wind_mph": 4.5,
-          "chop_score": 63,
-          "chop_label": "Rideable"
+          "time": "2026-04-26T17:00",
+          "wind_mph": 5.7,
+          "wind_dir_deg": 334,
+          "gust_mph": 8.9,
+          "effective_wind_mph": 5.4,
+          "chop_score": 53,
+          "chop_label": "Choppy"
         },
         {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 4.9,
-          "wind_dir_deg": 330,
-          "gust_mph": 7.4,
-          "effective_wind_mph": 4.6,
+          "time": "2026-04-26T18:00",
+          "wind_mph": 4.7,
+          "wind_dir_deg": 343,
+          "gust_mph": 7.2,
+          "effective_wind_mph": 4.7,
           "chop_score": 60,
           "chop_label": "Rideable"
         },
         {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.6,
-          "wind_dir_deg": 331,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.3,
-          "chop_score": 62,
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.4,
+          "wind_dir_deg": 360,
+          "gust_mph": 6.0,
+          "effective_wind_mph": 3.4,
+          "chop_score": 68,
           "chop_label": "Rideable"
         },
         {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.0,
-          "chop_score": 63,
+          "time": "2026-04-26T20:00",
+          "wind_mph": 3.8,
+          "wind_dir_deg": 7,
+          "gust_mph": 6.7,
+          "effective_wind_mph": 3.8,
+          "chop_score": 65,
           "chop_label": "Rideable"
         },
         {
-          "time": "2026-04-26T17:00",
-          "wind_mph": 4.4,
-          "wind_dir_deg": 330,
-          "gust_mph": 7.4,
-          "effective_wind_mph": 4.1,
-          "chop_score": 62,
+          "time": "2026-04-26T21:00",
+          "wind_mph": 3.1,
+          "wind_dir_deg": 60,
+          "gust_mph": 3.1,
+          "effective_wind_mph": 3.1,
+          "chop_score": 78,
           "chop_label": "Rideable"
         }
       ]
@@ -126,57 +126,57 @@
       "name": "The Cove",
       "lat": 47.5775,
       "lon": -122.10888,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.5,
-      "wind_dir_deg": 323,
-      "gust_mph": 6.9,
-      "effective_wind_mph": 2.6,
-      "chop_score": 97,
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.9,
+      "wind_dir_deg": 335,
+      "gust_mph": 9.6,
+      "effective_wind_mph": 3.4,
+      "chop_score": 96,
       "chop_label": "Glass",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.5,
-          "wind_dir_deg": 323,
-          "gust_mph": 6.9,
-          "effective_wind_mph": 2.6,
-          "chop_score": 97,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 4.9,
-          "wind_dir_deg": 336,
-          "gust_mph": 7.4,
-          "effective_wind_mph": 2.8,
-          "chop_score": 97,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.7,
-          "wind_dir_deg": 335,
-          "gust_mph": 7.4,
-          "effective_wind_mph": 2.7,
-          "chop_score": 97,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.8,
-          "wind_dir_deg": 332,
-          "gust_mph": 7.4,
-          "effective_wind_mph": 2.8,
-          "chop_score": 97,
-          "chop_label": "Glass"
-        },
-        {
           "time": "2026-04-26T17:00",
-          "wind_mph": 4.7,
-          "wind_dir_deg": 329,
+          "wind_mph": 5.9,
+          "wind_dir_deg": 335,
+          "gust_mph": 9.6,
+          "effective_wind_mph": 3.4,
+          "chop_score": 96,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T18:00",
+          "wind_mph": 5.0,
+          "wind_dir_deg": 339,
+          "gust_mph": 7.4,
+          "effective_wind_mph": 5.0,
+          "chop_score": 58,
+          "chop_label": "Choppy"
+        },
+        {
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.7,
+          "wind_dir_deg": 346,
           "gust_mph": 6.5,
-          "effective_wind_mph": 2.7,
-          "chop_score": 98,
+          "effective_wind_mph": 3.7,
+          "chop_score": 66,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T20:00",
+          "wind_mph": 4.2,
+          "wind_dir_deg": 344,
+          "gust_mph": 7.2,
+          "effective_wind_mph": 4.2,
+          "chop_score": 62,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 1.8,
+          "wind_dir_deg": 14,
+          "gust_mph": 2.9,
+          "effective_wind_mph": 1.8,
+          "chop_score": 84,
           "chop_label": "Glass"
         }
       ]
@@ -186,58 +186,58 @@
       "name": "Mid-Lake East",
       "lat": 47.60488,
       "lon": -122.08077,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.0,
-      "wind_dir_deg": 313,
-      "gust_mph": 6.7,
-      "effective_wind_mph": 4.0,
-      "chop_score": 76,
-      "chop_label": "Rideable",
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.2,
+      "wind_dir_deg": 340,
+      "gust_mph": 8.5,
+      "effective_wind_mph": 5.2,
+      "chop_score": 54,
+      "chop_label": "Choppy",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.0,
-          "wind_dir_deg": 313,
-          "gust_mph": 6.7,
-          "effective_wind_mph": 4.0,
-          "chop_score": 76,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 4.9,
-          "wind_dir_deg": 330,
-          "gust_mph": 7.6,
-          "effective_wind_mph": 4.9,
-          "chop_score": 72,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
-          "gust_mph": 6.5,
-          "effective_wind_mph": 4.3,
-          "chop_score": 76,
-          "chop_label": "Rideable"
-        },
-        {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.0,
-          "wind_dir_deg": 333,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.0,
-          "chop_score": 75,
-          "chop_label": "Rideable"
-        },
-        {
           "time": "2026-04-26T17:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
-          "gust_mph": 5.8,
-          "effective_wind_mph": 4.3,
-          "chop_score": 77,
+          "wind_mph": 5.2,
+          "wind_dir_deg": 340,
+          "gust_mph": 8.5,
+          "effective_wind_mph": 5.2,
+          "chop_score": 54,
+          "chop_label": "Choppy"
+        },
+        {
+          "time": "2026-04-26T18:00",
+          "wind_mph": 4.6,
+          "wind_dir_deg": 346,
+          "gust_mph": 6.7,
+          "effective_wind_mph": 4.6,
+          "chop_score": 62,
           "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.6,
+          "wind_dir_deg": 356,
+          "gust_mph": 5.8,
+          "effective_wind_mph": 3.6,
+          "chop_score": 68,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T20:00",
+          "wind_mph": 4.0,
+          "wind_dir_deg": 360,
+          "gust_mph": 6.5,
+          "effective_wind_mph": 4.0,
+          "chop_score": 64,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 2.7,
+          "wind_dir_deg": 48,
+          "gust_mph": 2.9,
+          "effective_wind_mph": 2.1,
+          "chop_score": 99,
+          "chop_label": "Glass"
         }
       ]
     },
@@ -246,57 +246,57 @@
       "name": "North West",
       "lat": 47.61061,
       "lon": -122.10565,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.0,
-      "wind_dir_deg": 317,
-      "gust_mph": 7.2,
-      "effective_wind_mph": 2.6,
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.7,
+      "wind_dir_deg": 334,
+      "gust_mph": 9.4,
+      "effective_wind_mph": 3.6,
       "chop_score": 98,
       "chop_label": "Glass",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.0,
-          "wind_dir_deg": 317,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 2.6,
-          "chop_score": 98,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 5.0,
-          "wind_dir_deg": 333,
-          "gust_mph": 7.8,
-          "effective_wind_mph": 3.2,
-          "chop_score": 98,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.6,
-          "wind_dir_deg": 331,
-          "gust_mph": 6.7,
-          "effective_wind_mph": 2.9,
-          "chop_score": 98,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.6,
-          "wind_dir_deg": 331,
-          "gust_mph": 7.6,
-          "effective_wind_mph": 2.9,
-          "chop_score": 98,
-          "chop_label": "Glass"
-        },
-        {
           "time": "2026-04-26T17:00",
-          "wind_mph": 4.7,
-          "wind_dir_deg": 329,
-          "gust_mph": 6.3,
-          "effective_wind_mph": 3.0,
+          "wind_mph": 5.7,
+          "wind_dir_deg": 334,
+          "gust_mph": 9.4,
+          "effective_wind_mph": 3.6,
           "chop_score": 98,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T18:00",
+          "wind_mph": 5.0,
+          "wind_dir_deg": 339,
+          "gust_mph": 7.2,
+          "effective_wind_mph": 4.4,
+          "chop_score": 96,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.5,
+          "wind_dir_deg": 345,
+          "gust_mph": 6.5,
+          "effective_wind_mph": 3.1,
+          "chop_score": 97,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T20:00",
+          "wind_mph": 4.7,
+          "wind_dir_deg": 343,
+          "gust_mph": 8.1,
+          "effective_wind_mph": 4.1,
+          "chop_score": 96,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 4.3,
+          "wind_dir_deg": 9,
+          "gust_mph": 4.9,
+          "effective_wind_mph": 3.8,
+          "chop_score": 97,
           "chop_label": "Glass"
         }
       ]
@@ -306,57 +306,57 @@
       "name": "NE Shore",
       "lat": 47.61899,
       "lon": -122.07136,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.0,
-      "wind_dir_deg": 313,
-      "gust_mph": 6.7,
-      "effective_wind_mph": 4.0,
-      "chop_score": 88,
-      "chop_label": "Glass",
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.2,
+      "wind_dir_deg": 340,
+      "gust_mph": 8.5,
+      "effective_wind_mph": 5.2,
+      "chop_score": 69,
+      "chop_label": "Rideable",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.0,
-          "wind_dir_deg": 313,
-          "gust_mph": 6.7,
-          "effective_wind_mph": 4.0,
-          "chop_score": 88,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 4.9,
-          "wind_dir_deg": 330,
-          "gust_mph": 7.6,
-          "effective_wind_mph": 4.9,
-          "chop_score": 86,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
-          "gust_mph": 6.5,
-          "effective_wind_mph": 4.3,
-          "chop_score": 88,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 4.0,
-          "wind_dir_deg": 333,
-          "gust_mph": 7.2,
-          "effective_wind_mph": 4.0,
-          "chop_score": 87,
-          "chop_label": "Glass"
-        },
-        {
           "time": "2026-04-26T17:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 332,
+          "wind_mph": 5.2,
+          "wind_dir_deg": 340,
+          "gust_mph": 8.5,
+          "effective_wind_mph": 5.2,
+          "chop_score": 69,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T18:00",
+          "wind_mph": 4.6,
+          "wind_dir_deg": 346,
+          "gust_mph": 6.7,
+          "effective_wind_mph": 4.6,
+          "chop_score": 74,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.6,
+          "wind_dir_deg": 356,
           "gust_mph": 5.8,
-          "effective_wind_mph": 4.3,
-          "chop_score": 88,
+          "effective_wind_mph": 3.6,
+          "chop_score": 79,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T20:00",
+          "wind_mph": 4.0,
+          "wind_dir_deg": 360,
+          "gust_mph": 6.5,
+          "effective_wind_mph": 4.0,
+          "chop_score": 76,
+          "chop_label": "Rideable"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 2.7,
+          "wind_dir_deg": 48,
+          "gust_mph": 2.9,
+          "effective_wind_mph": 1.9,
+          "chop_score": 99,
           "chop_label": "Glass"
         }
       ]
@@ -366,57 +366,57 @@
       "name": "North End",
       "lat": 47.63642,
       "lon": -122.08343,
-      "time": "2026-04-26T13:00",
-      "wind_mph": 4.6,
-      "wind_dir_deg": 317,
+      "time": "2026-04-26T17:00",
+      "wind_mph": 5.3,
+      "wind_dir_deg": 345,
       "gust_mph": 6.9,
-      "effective_wind_mph": 4.0,
-      "chop_score": 98,
+      "effective_wind_mph": 5.0,
+      "chop_score": 97,
       "chop_label": "Glass",
       "hourly": [
         {
-          "time": "2026-04-26T13:00",
-          "wind_mph": 4.6,
-          "wind_dir_deg": 317,
+          "time": "2026-04-26T17:00",
+          "wind_mph": 5.3,
+          "wind_dir_deg": 345,
           "gust_mph": 6.9,
-          "effective_wind_mph": 4.0,
-          "chop_score": 98,
-          "chop_label": "Glass"
-        },
-        {
-          "time": "2026-04-26T14:00",
-          "wind_mph": 5.1,
-          "wind_dir_deg": 331,
-          "gust_mph": 7.8,
-          "effective_wind_mph": 4.5,
+          "effective_wind_mph": 5.0,
           "chop_score": 97,
           "chop_label": "Glass"
         },
         {
-          "time": "2026-04-26T15:00",
-          "wind_mph": 4.2,
-          "wind_dir_deg": 335,
-          "gust_mph": 6.5,
-          "effective_wind_mph": 3.7,
+          "time": "2026-04-26T18:00",
+          "wind_mph": 4.8,
+          "wind_dir_deg": 347,
+          "gust_mph": 6.3,
+          "effective_wind_mph": 4.5,
           "chop_score": 98,
           "chop_label": "Glass"
         },
         {
-          "time": "2026-04-26T16:00",
-          "wind_mph": 3.9,
-          "wind_dir_deg": 336,
-          "gust_mph": 7.4,
+          "time": "2026-04-26T19:00",
+          "wind_mph": 3.6,
+          "wind_dir_deg": 353,
+          "gust_mph": 5.8,
           "effective_wind_mph": 3.4,
           "chop_score": 98,
           "chop_label": "Glass"
         },
         {
-          "time": "2026-04-26T17:00",
-          "wind_mph": 4.3,
-          "wind_dir_deg": 339,
-          "gust_mph": 5.8,
-          "effective_wind_mph": 4.0,
+          "time": "2026-04-26T20:00",
+          "wind_mph": 4.1,
+          "wind_dir_deg": 347,
+          "gust_mph": 6.7,
+          "effective_wind_mph": 3.9,
           "chop_score": 98,
+          "chop_label": "Glass"
+        },
+        {
+          "time": "2026-04-26T21:00",
+          "wind_mph": 2.6,
+          "wind_dir_deg": 20,
+          "gust_mph": 2.9,
+          "effective_wind_mph": 2.4,
+          "chop_score": 99,
           "chop_label": "Glass"
         }
       ]
