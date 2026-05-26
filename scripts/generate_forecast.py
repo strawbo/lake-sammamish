@@ -20,6 +20,7 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from db_utils import sqlalchemy_engine_with_retry
 
 # Force IPv4 to avoid IPv6 connectivity issues on GitHub Actions
 _original_getaddrinfo = socket.getaddrinfo
@@ -270,7 +271,7 @@ def seasonal_rain_pct(doy):
 # --- Main ---
 
 if __name__ == "__main__":
-    engine = create_engine(DB_URL)
+    engine = sqlalchemy_engine_with_retry(DB_URL)
     conn = engine.connect()
     print("Connected to database")
 

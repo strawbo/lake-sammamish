@@ -6,6 +6,7 @@ import psycopg2
 import psycopg2.extras
 from datetime import datetime
 from dotenv import load_dotenv
+from db_utils import connect_with_retry
 
 load_dotenv()
 DB_URL = os.getenv("SUPABASE_DB_URL")
@@ -59,7 +60,7 @@ def fetch_aqi():
 
 def merge_and_upsert(weather_data, aqi_data):
     """Merge weather and AQI data, upsert into weather_forecast table."""
-    conn = psycopg2.connect(DB_URL)
+    conn = connect_with_retry(DB_URL)
     cursor = conn.cursor()
 
     w_hourly = weather_data["hourly"]

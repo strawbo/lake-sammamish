@@ -22,6 +22,7 @@ import psycopg2
 import psycopg2.extras
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from db_utils import connect_with_retry
 
 load_dotenv()
 DB_URL = os.getenv("SUPABASE_DB_URL")
@@ -243,7 +244,7 @@ def project_water_temps(buoy_temp_f, forecast_rows):
 
 
 if __name__ == "__main__":
-    conn = psycopg2.connect(DB_URL)
+    conn = connect_with_retry(DB_URL)
     cursor = conn.cursor()
     print("Connected to database")
 

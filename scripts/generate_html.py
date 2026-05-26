@@ -3,13 +3,14 @@ import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
+from db_utils import sqlalchemy_engine_with_retry
 
 # Load environment variables
 load_dotenv()
 DB_URL = os.getenv("SUPABASE_DB_URL")
 
 # Connect to the database using SQLAlchemy
-engine = create_engine(DB_URL)
+engine = sqlalchemy_engine_with_retry(DB_URL)
 conn = engine.connect()
 
 # Define date range for the current year

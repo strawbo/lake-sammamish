@@ -3,6 +3,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
+from db_utils import connect_with_retry
 
 load_dotenv()
 DB_URL = os.getenv("SUPABASE_DB_URL")
@@ -82,7 +83,7 @@ MIGRATIONS = [
 ]
 
 if __name__ == "__main__":
-    conn = psycopg2.connect(DB_URL)
+    conn = connect_with_retry(DB_URL)
     cursor = conn.cursor()
     print("Connected to database")
 

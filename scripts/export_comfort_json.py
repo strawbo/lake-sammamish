@@ -10,11 +10,12 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from db_utils import sqlalchemy_engine_with_retry
 
 load_dotenv()
 DB_URL = os.getenv("SUPABASE_DB_URL")
 
-engine = create_engine(DB_URL)
+engine = sqlalchemy_engine_with_retry(DB_URL)
 conn = engine.connect()
 
 # Comfort forecast: yesterday through +8 days
