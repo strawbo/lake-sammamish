@@ -6,7 +6,8 @@ No Supabase dependency — pure API calls.
 
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 # 7 zones along Lake Sammamish
 ZONES = [
@@ -95,7 +96,7 @@ def main():
     if not isinstance(raw, list):
         raw = [raw]
 
-    now = datetime.now()
+    now = datetime.now(tz=ZoneInfo("America/Los_Angeles"))
     current_hour = now.replace(minute=0, second=0, microsecond=0)
     current_hour_str = current_hour.strftime("%Y-%m-%dT%H:%M")
 
