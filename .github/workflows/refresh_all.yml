@@ -1,0 +1,74 @@
+name: Refresh All Data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt requests
+
+      - name: Run Database Migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/migrate_db.py
+
+      - name: Fetch buoy data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/download_data.py
+
+      - name: Import data
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/import_data.py
+
+      - name: Fetch weather and AQI forecast
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/fetch_forecast.py
+
+      - name: Compute comfort scores
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/compute_comfort.py
+
+      - name: Generate HTML
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/generate_html.py
+
+      - name: Export comfort JSON
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python scripts/export_comfort_json.py
+
+      - name: Generate wind data
+        run: python scripts/generate_wind.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
+          git fetch origin main
+          git reset --soft origin/main
+          git add docs/index.html docs/comfort-data.json docs/wind-data.json
+          git diff --cached --quiet || git commit -m "Refresh all data"
+          git push origin main || echo "Nothing to push"
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
