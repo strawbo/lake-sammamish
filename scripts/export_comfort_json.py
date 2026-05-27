@@ -44,8 +44,8 @@ LIMIT 1;
 # Data freshness metadata
 df_meta = pd.read_sql("""
 SELECT
-    TO_CHAR((SELECT MAX(date) FROM lake_data WHERE depth_m < 1.5 AND temperature_c IS NOT NULL)
-            AT TIME ZONE 'America/Los_Angeles', 'YYYY-MM-DD"T"HH24:MI:SS') AS latest_buoy,
+    TO_CHAR((SELECT MAX(date) FROM lake_data WHERE depth_m < 1.5 AND temperature_c IS NOT NULL),
+            'YYYY-MM-DD"T"HH24:MI:SS') AS latest_buoy,
     TO_CHAR(NOW() AT TIME ZONE 'America/Los_Angeles', 'YYYY-MM-DD"T"HH24:MI:SS') AS generated_at;
 """, conn)
 
