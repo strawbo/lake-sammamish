@@ -1,4 +1,4 @@
-name: Refresh All Data
+name: Refresh Weather & Wind
 
 on:
   workflow_dispatch:
@@ -25,12 +25,6 @@ jobs:
       - name: Configure session pooler
         run: echo "SUPABASE_DB_URL=$(echo '${{ secrets.SUPABASE_DB_URL }}' | sed 's/:6543\//:5432\//')" >> $GITHUB_ENV
 
-      - name: Fetch buoy data
-        run: python scripts/download_data.py
-
-      - name: Import data
-        run: python scripts/import_data.py
-
       - name: Fetch weather and AQI forecast
         run: python scripts/fetch_forecast.py
 
@@ -54,5 +48,5 @@ jobs:
           git fetch origin main
           git reset --soft origin/main
           git add docs/index.html docs/comfort-data.json docs/wind-data.json
-          git diff --cached --quiet || git commit -m "Refresh all data"
+          git diff --cached --quiet || git commit -m "Refresh weather and wind data"
           git push origin main || echo "Nothing to push"

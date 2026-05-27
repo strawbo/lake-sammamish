@@ -27,39 +27,25 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Database Migrations
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: python scripts/migrate_db.py
+      - name: Configure session pooler
+        run: echo "SUPABASE_DB_URL=$(echo '${{ secrets.SUPABASE_DB_URL }}' | sed 's/:6543\//:5432\//')" >> $GITHUB_ENV
 
       - name: Run Data Fetch Script
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/download_data.py
 
       - name: Run Import Script
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/import_data.py
 
       - name: Fetch Weather and AQI Forecast
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/fetch_forecast.py
 
       - name: Compute Comfort Scores
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/compute_comfort.py
 
       - name: Generate HTML
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/generate_html.py
 
       - name: Export Comfort Data JSON
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: python scripts/export_comfort_json.py
 
       - name: Set up Git
@@ -67,13 +53,10 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
-      - name: Pull latest changes
+      - name: Commit and push
         run: |
           git fetch origin main
           git reset --soft origin/main
-
-      - name: Push updated index.html
-        run: |
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
           git add docs/index.html docs/comfort-data.json
           git commit -m "Auto-update index.html and comfort-data.json" || echo "No changes to commit"

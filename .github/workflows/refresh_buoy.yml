@@ -1,4 +1,4 @@
-name: Refresh All Data
+name: Refresh Buoy Data
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt requests
+        run: pip install -r requirements.txt
 
       - name: Configure session pooler
         run: echo "SUPABASE_DB_URL=$(echo '${{ secrets.SUPABASE_DB_URL }}' | sed 's/:6543\//:5432\//')" >> $GITHUB_ENV
@@ -30,12 +30,6 @@ jobs:
 
       - name: Import data
         run: python scripts/import_data.py
-
-      - name: Fetch weather and AQI forecast
-        run: python scripts/fetch_forecast.py
-
-      - name: Generate wind data
-        run: python scripts/generate_wind.py
 
       - name: Compute comfort scores
         run: python scripts/compute_comfort.py
@@ -53,6 +47,6 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/strawbo/lake-sammamish.git
           git fetch origin main
           git reset --soft origin/main
-          git add docs/index.html docs/comfort-data.json docs/wind-data.json
-          git diff --cached --quiet || git commit -m "Refresh all data"
+          git add docs/index.html docs/comfort-data.json
+          git diff --cached --quiet || git commit -m "Refresh buoy data"
           git push origin main || echo "Nothing to push"
