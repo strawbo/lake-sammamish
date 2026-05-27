@@ -22,11 +22,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt requests
 
-      - name: Run Database Migrations
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: python scripts/migrate_db.py
-
       - name: Fetch buoy data
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
