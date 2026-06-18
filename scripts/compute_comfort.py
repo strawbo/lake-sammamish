@@ -47,12 +47,23 @@ def score_air_temp(f):
     return _interpolate(f, points)
 
 
-def score_wind(mph):
-    """Wind speed in mph. Calm is best."""
+def score_wind(mph, wind_dir_deg=None):
+    """Wind speed in mph, optionally direction-adjusted for lake fetch.
+
+    Lake Sammamish runs N-S for 8 miles. North wind (330-030°) blows the full
+    fetch length toward the south-end launch area, creating far more chop than
+    the same speed from east/west (~1.5-mile fetch). Apply a 1.5x effective-
+    speed multiplier for north-quadrant wind before scoring.
+    """
     if mph is None:
         return 50
+    effective_mph = mph
+    if wind_dir_deg is not None:
+        deg = wind_dir_deg % 360
+        if deg >= 330 or deg <= 30:
+            effective_mph = mph * 1.5
     points = [(0, 100), (3, 100), (5, 90), (10, 65), (15, 35), (20, 10), (25, 0)]
-    return _interpolate(mph, points)
+    return _interpolate(effective_mph, points)
 
 
 def score_sun(w_per_m2):
@@ -137,12 +148,12 @@ BASELINE_BONUS = 0.05
 
 
 def compute_score(water_temp_f, feels_like_f, wind_mph, solar_w, precip_pct,
-                  turbidity_ntu, phycocyanin_ugl, aqi_val):
+                  turbidity_ntu, phycocyanin_ugl, aqi_val, wind_dir_deg=None):
     """Compute weighted comfort score with hard overrides."""
     scores = {
         "water_temp": score_water_temp(water_temp_f),
         "air_temp": score_air_temp(feels_like_f),
-        "wind": score_wind(wind_mph),
+        "wind": score_wind(wind_mph, wind_dir_deg),
         "sun": score_sun(solar_w),
         "rain": score_rain(precip_pct),
         "clarity": score_turbidity(turbidity_ntu),
@@ -198,7 +209,7 @@ def get_forecast_hours(cursor):
     cursor.execute("""
         SELECT DISTINCT ON (forecast_time)
             forecast_time, feels_like_f, wind_speed_mph, solar_radiation_w,
-            precip_probability, us_aqi, uv_index, temperature_f
+            precip_probability, us_aqi, uv_index, temperature_f, wind_direction_deg
         FROM weather_forecast
         WHERE forecast_time >= DATE_TRUNC('day', NOW()) - INTERVAL '1 day'
           AND forecast_time < NOW() + INTERVAL '8 days'
@@ -263,7 +274,7 @@ if __name__ == "__main__":
     now = datetime.now()
     batch = []
     for i, row in enumerate(forecast_rows):
-        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index, air_temp_f = row
+        forecast_time, feels_like_f, wind_mph, solar_w, precip_pct, aqi_val, uv_index, air_temp_f, wind_dir_deg = row
 
         feels_like_f = float(feels_like_f) if feels_like_f else None
         wind_mph = float(wind_mph) if wind_mph else None
@@ -271,18 +282,20 @@ if __name__ == "__main__":
         precip_pct = float(precip_pct) if precip_pct else None
         aqi_val = float(aqi_val) if aqi_val else None
         uv_index = float(uv_index) if uv_index else None
+        wind_dir_deg = float(wind_dir_deg) if wind_dir_deg is not None else None
 
         projected_water_f = water_temps[i]
 
         overall, label, scores, override = compute_score(
             projected_water_f, feels_like_f, wind_mph, solar_w, precip_pct,
-            buoy["turbidity_ntu"], buoy["phycocyanin_ugl"], aqi_val
+            buoy["turbidity_ntu"], buoy["phycocyanin_ugl"], aqi_val, wind_dir_deg
         )
 
         snapshot = {
             "water_temp_f": projected_water_f,
             "feels_like_f": feels_like_f,
             "wind_mph": wind_mph,
+            "wind_dir_deg": wind_dir_deg,
             "solar_w": solar_w,
             "precip_pct": precip_pct,
             "turbidity_ntu": buoy["turbidity_ntu"],
