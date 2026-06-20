@@ -30,13 +30,16 @@ WHERE score_time >= DATE_TRUNC('day', NOW()) - INTERVAL '1 day'
 ORDER BY score_time;
 """, conn)
 
-# Current comfort: closest entry to now
+# Current comfort: closest entry to now, from the most recent compute run only.
+# Restricting to MAX(computed_at) prevents stale rows from older fetch generations
+# from being selected over fresher rows for the same score_time.
 df_current = pd.read_sql("""
 SELECT score_time, overall_score, label,
        water_temp_score, air_temp_score, wind_score, sun_score,
        rain_score, clarity_score, algae_score, aqi_score,
        override_reason, input_snapshot
 FROM comfort_score
+WHERE computed_at = (SELECT MAX(computed_at) FROM comfort_score)
 ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - NOW())))
 LIMIT 1;
 """, conn)
