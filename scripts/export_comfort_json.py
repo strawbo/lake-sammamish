@@ -40,7 +40,7 @@ SELECT score_time, overall_score, label,
        override_reason, input_snapshot
 FROM comfort_score
 WHERE computed_at = (SELECT MAX(computed_at) FROM comfort_score)
-ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - NOW())))
+ORDER BY ABS(EXTRACT(EPOCH FROM (score_time - (NOW() AT TIME ZONE 'America/Los_Angeles'))))
 LIMIT 1;
 """, conn)
 
