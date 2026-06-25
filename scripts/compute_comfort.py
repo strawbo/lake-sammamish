@@ -173,12 +173,24 @@ def compute_score(water_temp_f, feels_like_f, wind_mph, solar_w, precip_pct,
         overall = min(overall, 30)
         override_reason = f"Algae bloom warning (phycocyanin {phycocyanin_ugl} ug/L)"
 
-    if aqi_val is not None and aqi_val > 150:
-        overall = min(overall, 20)
-        override_reason = f"Very unhealthy air quality (AQI {aqi_val})"
+    # AQI soft caps — graduated by severity
+    if aqi_val is not None and aqi_val > 200:
+        overall = min(overall, 30)
+        override_reason = (override_reason or "") + f"Very unhealthy air quality (AQI {round(aqi_val)})"
+    elif aqi_val is not None and aqi_val > 150:
+        overall = min(overall, 50)
+        override_reason = (override_reason or "") + f"Unhealthy air quality (AQI {round(aqi_val)})"
     elif aqi_val is not None and aqi_val > 100:
-        overall = min(overall, 40)
-        override_reason = (override_reason or "") + f"Unhealthy air quality for sensitive groups (AQI {aqi_val})"
+        overall = min(overall, 70)
+        override_reason = (override_reason or "") + f"Unhealthy for sensitive groups (AQI {round(aqi_val)})"
+
+    # Air temp soft caps — cold air reduces swimming appeal even with warm water
+    if feels_like_f is not None and feels_like_f < 60:
+        overall = min(overall, 45)
+    elif feels_like_f is not None and feels_like_f < 65:
+        overall = min(overall, 60)
+    elif feels_like_f is not None and feels_like_f < 70:
+        overall = min(overall, 72)
 
     return overall, label_for_score(overall), scores, override_reason
 
