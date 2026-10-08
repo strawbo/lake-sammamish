@@ -2,6 +2,6 @@ requests
 psycopg2-binary
 python-dotenv
 beautifulsoup4
-sqlalchemy
+sqlalchemy<2.1
 pandas
 numpy
